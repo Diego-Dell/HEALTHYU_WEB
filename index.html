@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Healthy U - Inicio</title>
+
+  <!-- Bootstrap -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <!-- Bootstrap Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+  />
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ================= NAVBAR PRINCIPAL ================= -->
+<nav
+  class="navbar navbar-expand-lg navbar-light barra-navegacion"
+  style="background-color: var(--bg-card); border-bottom: 1px solid var(--border-soft);"
+>
+  <div class="container">
+
+    <!-- Solo logo -->
+    <a class="navbar-brand" href="index.html">
+      <img
+        src="IMAGENES/logo_horizontal.png"
+        alt="Healthy U"
+        style="max-height: 40px"
+      />
+    </a>
+
+    <!-- Botón hamburguesa móvil -->
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarHealthyU"
+      aria-controls="navbarHealthyU"
+      aria-expanded="false"
+      aria-label="Mostrar navegación"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Contenido del menú -->
+    <div class="collapse navbar-collapse" id="navbarHealthyU">
+
+      <!-- Menú principal -->
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 menu-principal">
+        <li class="nav-item">
+          <a class="nav-link" href="index.html" style="color: var(--text-main);">
+            <i class="bi bi-house-door me-1"></i>Inicio
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="manual.html" style="color: var(--text-main);">
+            <i class="bi bi-book me-1"></i>Manual
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="blog.html" style="color: var(--text-main);">
+            <i class="bi bi-journal-text me-1"></i>Blog
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="contacto.html" style="color: var(--text-main);">
+            <i class="bi bi-envelope me-1"></i>Contacto
+          </a>
+        </li>
+
+        <!-- ⭐ NUEVO: PRECIOS -->
+        <li class="nav-item">
+          <a class="nav-link" href="comprar.html" style="color: var(--text-main);">
+            <i class="bi bi-tags me-1"></i>Precios
+          </a>
+        </li>
+      </ul>
+
+      <!-- Lado derecho: Pedido + Acceder + Tema -->
+      <div
+        class="d-flex align-items-center ms-lg-4 mt-3 mt-lg-0 gap-2 border-start ps-lg-4 pt-2 pt-lg-0 zona-derecha-nav"
+        style="border-color: var(--border-soft) !important;"
+      >
+        <!-- Botón Pedido (oscuro) -->
+        <a href="pedido.html" class="btn btn-dark btn-sm boton-pedido">
+          <i class="bi bi-cart3 me-1"></i>
+          Pedido
+          <span
+            id="cartCount"
+            class="badge bg-light text-dark ms-1"
+            style="font-size: 0.7rem"
+          >
+            0
+          </span>
+        </a>
+
+        <!-- Botón Login / Registro (JS lo convierte en "Mi Cuenta" si está logueado) -->
+        <button
+          id="btnLoginNav"
+          type="button"
+          class="btn btn-hu-accent btn-sm boton-acceder"
+          data-bs-toggle="modal"
+          data-bs-target="#authModal"
+        >
+          <i class="bi bi-box-arrow-in-right me-1"></i>
+          Acceder
+        </button>
+
+        <!-- Botón cambio de tema -->
+        <button
+          id="themeToggle"
+          type="button"
+          class="btn btn-outline-secondary btn-sm boton-tema"
+          title="Cambiar tema"
+        >
+          <i class="bi bi-moon-stars"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+  <!-- ================= SECCIÓN HERO ================= -->
+  <section class="hero seccion-hero py-5">
+    <div class="container">
+      <div class="row align-items-center g-4">
+        <!-- Texto principal -->
+        <div class="col-lg-6 order-2 order-lg-1">
+          <h1 class="fw-bold mb-3 titulo-hero">
+            Tu salud, tus datos.<br />
+            <span class="fw-bolder">Healthy U</span> los organiza por ti.
+          </h1>
+          <p class="lead mb-4 texto-hero">
+            Localiza centros de salud, registra tus signos vitales, programa
+            recordatorios de medicación y lleva un historial claro de tu
+            bienestar físico, todo en un solo lugar.
+          </p>
+
+          <!-- Botones principales -->
+          <div class="d-flex flex-column flex-sm-row gap-2 acciones-hero">
+            <!-- Botón: Ver video (modal YouTube) -->
+            <button
+              type="button"
+              class="btn btn-hu-accent btn-lg"
+              data-bs-toggle="modal"
+              data-bs-target="#videoModal"
+            >
+              <i class="bi bi-play-circle me-1"></i>
+              Ver cómo funciona
+            </button>
+
+            <!-- Botón: ir a módulos -->
+            <a href="#modulos" class="btn btn-outline-light btn-lg">
+              <i class="bi bi-grid-3x3-gap me-1"></i>
+              Explorar módulos
+            </a>
+          </div>
+
+          <!-- Beneficios rápidos -->
+          <div class="mt-4 d-flex align-items-center gap-3 flex-wrap">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-shield-check fs-4"></i>
+              <span class="text-small">
+                Tus datos se guardan de forma segura.
+              </span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-clock-history fs-4"></i>
+              <span class="text-small">
+                Historial detallado de tus signos vitales.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Imagen principal -->
+        <div class="col-lg-6 text-center order-1 order-lg-2">
+          <img
+            src="Imagenes/HealthyU_Header.png"
+            alt="Panel de Healthy U"
+            class="img-fluid rounded-4 hu-hover imagen-hero"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ¿QUÉ ES HEALTHY U? ================= -->
+  <section class="py-5 bg-hu-soft seccion-que-es">
+    <div class="container">
+      <div class="row align-items-center g-4">
+        <!-- Imagen descriptiva -->
+        <div class="col-lg-6">
+          <img
+            src="Imagenes/queEs.png"
+            alt="Qué es Healthy U"
+            class="img-fluid rounded-4 hu-hover imagen-que-es"
+          />
+        </div>
+
+        <!-- Texto explicativo -->
+        <div class="col-lg-6 text-lg-end">
+          <h2 class="section-title titulo-seccion mb-0">¿QUÉ ES</h2>
+          <h2 class="section-title titulo-seccion" style="color: var(--hu-secondary);">
+            HEALTHY U?
+          </h2>
+          <p class="fs-5">
+            Healthy U es un sistema que integra diferentes módulos para ayudarte
+            a gestionar tu salud de manera simple:
+            centros de salud, registro de pacientes, signos vitales,
+            recordatorios de medicación y un panel de datos e informes.
+          </p>
+          <p>
+            Ideal para estudiantes, profesionales de salud y usuarios que quieren
+            controlar sus indicadores de manera organizada.
+          </p>
+          <div class="d-flex justify-content-lg-end">
+            <a href="datos.html" class="btn btn-outline-primary btn-lg boton-panel-datos">
+              <i class="bi bi-graph-up-arrow me-1"></i>
+              Ver panel de datos
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MÓDULOS PRINCIPALES ================= -->
+  <section id="modulos" class="py-5 seccion-modulos">
+    <div class="container">
+      <div class="text-center mb-4">
+        <h2 class="section-title titulo-seccion">MÓDULOS PRINCIPALES</h2>
+        <p class="text-muted">
+          Cada módulo cumple una función clave para centralizar tu información de salud.
+        </p>
+      </div>
+
+      <div class="row g-4">
+        <!-- Módulo: Centros de salud -->
+        <div class="col-md-6 col-lg-4">
+          <div class="hu-card tarjeta-modulo h-100 p-4">
+            <div class="d-flex align-items-center mb-3">
+              <i class="bi bi-geo-alt fs-3 me-2 text-primary"></i>
+              <h5 class="mb-0">Centros de salud</h5>
+            </div>
+            <p class="mb-3">
+              Registra centros de salud, direcciones, teléfonos y enlaces de Google Maps
+              para encontrar rápidamente dónde atenderte.
+            </p>
+            <a href="manual.html#centros" class="text-decoration-none enlace-modulo">
+              Ver cómo usarlo <i class="bi bi-arrow-right-short"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Módulo: Pacientes -->
+        <div class="col-md-6 col-lg-4">
+          <div class="hu-card tarjeta-modulo h-100 p-4">
+            <div class="d-flex align-items-center mb-3">
+              <i class="bi bi-person-vcard fs-3 me-2 text-primary"></i>
+              <h5 class="mb-0">Pacientes y perfiles</h5>
+            </div>
+            <p class="mb-3">
+              Crea perfiles con datos personales, tipo de sangre, contactos y foto
+              para identificar fácilmente a cada paciente/usuario.
+            </p>
+            <a href="datos.html#pacientes" class="text-decoration-none enlace-modulo">
+              Ver ejemplos <i class="bi bi-arrow-right-short"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Módulo: Signos vitales -->
+        <div class="col-md-6 col-lg-4">
+          <div class="hu-card tarjeta-modulo h-100 p-4">
+            <div class="d-flex align-items-center mb-3">
+              <i class="bi bi-heart-pulse fs-3 me-2 text-primary"></i>
+              <h5 class="mb-0">Signos vitales</h5>
+            </div>
+            <p class="mb-3">
+              Guarda ritmo cardíaco, presión arterial, temperatura, oxigenación y fecha/hora
+              para ver la evolución en el tiempo.
+            </p>
+            <a href="datos.html#signos" class="text-decoration-none enlace-modulo">
+              Ver registro <i class="bi bi-arrow-right-short"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Módulo: Recordatorios -->
+        <div class="col-md-6 col-lg-4">
+          <div class="hu-card tarjeta-modulo h-100 p-4">
+            <div class="d-flex align-items-center mb-3">
+              <i class="bi bi-bell fs-3 me-2 text-primary"></i>
+              <h5 class="mb-0">Recordatorios</h5>
+            </div>
+            <p class="mb-3">
+              Programa horarios para medicación u otros eventos de salud y evita olvidar
+              tus tomas importantes.
+            </p>
+            <a href="manual.html#recordatorios" class="text-decoration-none enlace-modulo">
+              Ver sección de recordatorios <i class="bi bi-arrow-right-short"></i>
+            </a>
+          </div>
+        </div>
+
+
+        <!-- Módulo: Blog educativo -->
+        <div class="col-md-6 col-lg-4">
+          <div class="hu-card tarjeta-modulo h-100 p-4">
+            <div class="d-flex align-items-center mb-3">
+              <i class="bi bi-pencil-square fs-3 me-2 text-primary"></i>
+              <h5 class="mb-0">Blog educativo</h5>
+            </div>
+            <p class="mb-3">
+              Lee artículos sobre hábitos saludables, explicación de signos vitales
+              y recomendaciones para el día a día.
+            </p>
+            <a href="blog.html" class="text-decoration-none enlace-modulo">
+              Ver artículos <i class="bi bi-arrow-right-short"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CINTA DE MÉTRICAS ================= -->
+  <section class="py-4 bg-hu-soft seccion-metricas">
+    <div class="container">
+      <div class="row text-center g-4">
+        <div class="col-6 col-md-3">
+          <h4 class="fw-bold mb-0">+50</h4>
+          <small class="text-muted">Registros de pacientes</small>
+        </div>
+        <div class="col-6 col-md-3">
+          <h4 class="fw-bold mb-0">+300</h4>
+          <small class="text-muted">Signos vitales guardados</small>
+        </div>
+        <div class="col-6 col-md-3">
+          <h4 class="fw-bold mb-0">+100</h4>
+          <small class="text-muted">Centros de salud verificados</small>
+        </div>
+        <div class="col-6 col-md-3">
+          <h4 class="fw-bold mb-0">24/7</h4>
+          <small class="text-muted">Acceso a tu información</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TESTIMONIOS / PERSONAL DE SALUD ================= -->
+  <section class="py-5 seccion-testimonios">
+    <div class="container">
+      <div class="row g-4 align-items-center">
+        <!-- Texto -->
+        <div class="col-lg-5">
+          <h2 class="section-title titulo-seccion mb-3">
+            Pensado para el personal de salud
+          </h2>
+          <p>
+            Healthy U fue diseñado tomando en cuenta la forma en la que
+            médicos, enfermeras y otros profesionales registran y consultan la
+            información de sus pacientes.
+          </p>
+          <ul class="list-unstyled lista-beneficios">
+            <li class="mb-2">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              Vista rápida de signos vitales recientes.
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              Registro claro de medicación y recordatorios.
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              Organización de pacientes y centros de referencia.
+            </li>
+          </ul>
+        </div>
+
+        <!-- Tarjetas tipo testimonio -->
+        <div class="col-lg-7">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="hu-card tarjeta-testimonio p-3 h-100">
+                <div class="d-flex align-items-center mb-2">
+                  <img
+                    src="IMAGENES/resena/medico.webp"
+                    alt="Profesional 1"
+                    class="profile-avatar avatar-perfil me-3"
+                  />
+                  <div>
+                    <strong>Médico General</strong><br />
+                    <small class="text-muted">Clínica ambulatoria</small>
+                  </div>
+                </div>
+                <p class="mb-0 text-muted">
+                  “Puedo revisar tendencias de presión y frecuencia cardíaca
+                  antes de la consulta, lo que facilita mi decisión clínica.”
+                </p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="hu-card tarjeta-testimonio p-3 h-100">
+                <div class="d-flex align-items-center mb-2">
+                  <img
+                    src="Imagenes/resena/enfermera.jpg"
+                    alt="Profesional 2"
+                    class="profile-avatar avatar-perfil me-3"
+                  />
+                  <div>
+                    <strong>Lic. en Enfermería</strong><br />
+                    <small class="text-muted">Área hospitalaria</small>
+                  </div>
+                </div>
+                <p class="mb-0 text-muted">
+                  “El registro de signos vitales y recordatorios de medicación
+                  ayuda a mantener un mejor seguimiento de los pacientes
+                  hospitalizados.”
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= EQUIPO DE DESARROLLO ================= -->
+  <section class="py-5 bg-hu-soft seccion-equipo">
+    <div class="container">
+      <div class="text-center mb-4">
+        <h2 class="section-title titulo-seccion">Equipo de desarrollo</h2>
+        <p class="text-muted mb-0">
+          Healthy U es construido por un equipo comprometido con integrar salud y tecnología.
+        </p>
+      </div>
+
+      <!-- Fila 1 (3 integrantes) -->
+      <div class="row g-4 justify-content-center fila-equipo">
+
+        <!-- Walky -->
+        <div class="col-md-4 col-lg-3">
+          <div class="hu-card tarjeta-integrante p-4 text-center h-100">
+            <img
+              src="Imagenes/integrantes/walky.jpg"
+              alt="Walkyria Audivert"
+              class="team-avatar avatar-equipo mb-3 mx-auto d-block"
+            />
+            <h5 class="mb-1">Walkyria N. Audivert</h5>
+            <small class="text-muted d-block mb-3">
+              Frontend & Documentación
+            </small>
+
+            <div class="d-flex justify-content-center gap-3 mb-2">
+              <a href="https://www.instagram.com/walkyria.al" target="_blank">
+                <i class="bi bi-instagram fs-4"></i>
+              </a>
+              <a href="https://github.com/WalkyAL" target="_blank">
+                <i class="bi bi-github fs-4"></i>
+              </a>
+              <a href="https://www.linkedin.com/in/walkyria-nicole-audivert-lino-13b279342" target="_blank">
+                <i class="bi bi-linkedin fs-4"></i>
+              </a>
+            </div>
+
+            <p class="text-muted text-small">
+              Se encarga de la interfaz visual y documentación del sistema.
+            </p>
+          </div>
+        </div>
+
+        <!-- Deibi -->
+        <div class="col-md-4 col-lg-3">
+          <div class="hu-card tarjeta-integrante p-4 text-center h-100">
+            <img
+              src="Imagenes/integrantes/deibi.png"
+              alt="Deibi Cruz"
+              class="team-avatar avatar-equipo mb-3 mx-auto d-block"
+            />
+            <h5 class="mb-1">Deibi Cruz Gómez</h5>
+            <small class="text-muted d-block mb-3">
+              Desarrollo & GitFlow
+            </small>
+
+            <div class="d-flex justify-content-center gap-3 mb-2">
+              <a href="https://www.instagram.com/di.__.369" target="_blank">
+                <i class="bi bi-instagram fs-4"></i>
+              </a>
+              <a href="https://github.com/deibi72131422" target="_blank">
+                <i class="bi bi-github fs-4"></i>
+              </a>
+              <a href="mailto:cruzgomezdeibi@gmail.com">
+                <i class="bi bi-envelope fs-4"></i>
+              </a>
+            </div>
+
+            <p class="text-muted text-small">
+              Apoya en control de versiones, integración y pruebas del proyecto.
+            </p>
+          </div>
+        </div>
+
+        <!-- Diego -->
+        <div class="col-md-4 col-lg-3">
+          <div class="hu-card tarjeta-integrante p-4 text-center h-100">
+            <img
+              src="Imagenes/integrantes/dell.png"
+              alt="Diego Dell"
+              class="team-avatar avatar-equipo mb-3 mx-auto d-block"
+            />
+            <h5 class="mb-1">Diego Dell Fernández</h5>
+            <small class="text-muted d-block mb-3">
+              Arquitectura & Infraestructura
+            </small>
+
+            <div class="d-flex justify-content-center gap-3 mb-2">
+              <a href="https://www.instagram.com/diego_dell0" target="_blank">
+                <i class="bi bi-instagram fs-4"></i>
+              </a>
+              <a href="https://github.com/Diego-Dell" target="_blank">
+                <i class="bi bi-github fs-4"></i>
+              </a>
+              <a href="https://www.linkedin.com/in/diego-aron-dell-fernández-158406125" target="_blank">
+                <i class="bi bi-linkedin fs-4"></i>
+              </a>
+            </div>
+
+            <p class="text-muted text-small">
+              Responsable del despliegue, estructura técnica y optimización.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fila 2 (2 integrantes) -->
+      <div class="row g-4 justify-content-center mt-1 fila-equipo">
+
+        <!-- Mikaela -->
+        <div class="col-md-4 col-lg-3">
+          <div class="hu-card tarjeta-integrante p-4 text-center h-100">
+            <img
+              src="Imagenes/integrantes/mikaela.jpg"
+              alt="Mikaela Gutiérrez"
+              class="team-avatar avatar-equipo mb-3 mx-auto d-block"
+            />
+            <h5 class="mb-1">Mikaela Gutiérrez</h5>
+            <small class="text-muted d-block mb-3">
+              Desarrollo Frontend
+            </small>
+
+            <div class="d-flex justify-content-center gap-3 mb-2">
+              <a href="https://www.instagram.com/mika_g.u" target="_blank">
+                <i class="bi bi-instagram fs-4"></i>
+              </a>
+              <a href="https://github.com/MikaGu06" target="_blank">
+                <i class="bi bi-github fs-4"></i>
+              </a>
+              <a href="mailto:mikaelagutierrezurquiza@gmail.com">
+                <i class="bi bi-envelope fs-4"></i>
+              </a>
+            </div>
+
+            <p class="text-muted text-small">
+              Encargada de la experiencia móvil y pulido visual del proyecto.
+            </p>
+          </div>
+        </div>
+
+        <!-- Pablo -->
+        <div class="col-md-4 col-lg-3">
+          <div class="hu-card tarjeta-integrante p-4 text-center h-100">
+            <img
+              src="Imagenes/integrantes/pablo.jpg"
+              alt="Pablo Quiroz"
+              class="team-avatar avatar-equipo mb-3 mx-auto d-block"
+            />
+            <h5 class="mb-1">Pablo Quiroz</h5>
+            <small class="text-muted d-block mb-3">
+              Base de datos & Backend
+            </small>
+
+            <div class="d-flex justify-content-center gap-3 mb-2">
+              <a href="https://www.instagram.com/pabloquirozxd" target="_blank">
+                <i class="bi bi-instagram fs-4"></i>
+              </a>
+              <a href="https://github.com/pabloquirozxd" target="_blank">
+                <i class="bi bi-github fs-4"></i>
+              </a>
+              <a href="mailto:pablo@quiroz.me">
+                <i class="bi bi-envelope fs-4"></i>
+              </a>
+            </div>
+
+            <p class="text-muted text-small">
+              Diseñador del modelo de datos y lógica del lado del servidor.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CTA FINAL ================= -->
+  <section class="py-5 bg-hu-soft seccion-cta-final">
+    <div class="container">
+      <div
+        class="hu-card tarjeta-cta p-4 p-md-5 d-flex flex-column flex-md-row align-items-md-center justify-content-between"
+      >
+        <div>
+          <h3 class="mb-2">¿Listo para presentar Healthy U?</h3>
+          <p class="mb-0 text-muted">
+            Revisa el manual paso a paso o explora el blog para complementar tu
+            proyecto con buenas prácticas y conceptos de salud.
+          </p>
+        </div>
+        <div class="d-flex flex-column flex-sm-row gap-2 mt-3 mt-md-0">
+          <a href="manual.html" class="btn btn-hu-accent">
+            <i class="bi bi-book-half me-1"></i>
+            Ver manual
+          </a>
+          <a href="blog.html" class="btn btn-outline-primary">
+            <i class="bi bi-journal-text me-1"></i>
+            Leer blog
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MODAL VIDEO YOUTUBE ================= -->
+  <div
+    class="modal fade"
+    id="videoModal"
+    tabindex="-1"
+    aria-labelledby="videoModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content hu-card p-0">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title" id="videoModalLabel">
+            <i class="bi bi-play-circle me-1"></i> Cómo funciona Healthy U
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Cerrar"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="ratio ratio-16x9">
+            <!-- Cambia VIDEO_ID por el ID real de tu video de YouTube -->
+            <iframe
+              src="https://www.youtube.com/embed/VIDEO_ID"
+              title="Video demo Healthy U"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+            ></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL LOGIN / REGISTRO ================= -->
+  <div
+    class="modal fade"
+    id="authModal"
+    tabindex="-1"
+    aria-labelledby="authModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content hu-card p-0">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title" id="authModalLabel">
+            <i class="bi bi-person-circle me-1"></i> Accede a Healthy U
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Cerrar"
+          ></button>
+        </div>
+        <div class="modal-body pt-2">
+          <!-- Tabs login / registro -->
+          <ul
+            class="nav nav-pills mb-3"
+            id="authTab"
+            role="tablist"
+          >
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link active"
+                id="login-tab"
+                data-bs-toggle="pill"
+                data-bs-target="#login-pane"
+                type="button"
+                role="tab"
+                aria-controls="login-pane"
+                aria-selected="true"
+              >
+                Iniciar sesión
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="register-tab"
+                data-bs-toggle="pill"
+                data-bs-target="#register-pane"
+                type="button"
+                role="tab"
+                aria-controls="register-pane"
+                aria-selected="false"
+              >
+                Registrarse
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content" id="authTabContent">
+            <!-- LOGIN -->
+            <div
+              class="tab-pane fade show active"
+              id="login-pane"
+              role="tabpanel"
+              aria-labelledby="login-tab"
+              tabindex="0"
+            >
+              <form onsubmit="event.preventDefault(); login();">
+                <div class="mb-3">
+                  <label for="loginUser" class="form-label">Usuario o correo</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="loginUser"
+                    placeholder="tucorreo@ejemplo.com"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="loginPass" class="form-label">Contraseña</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="loginPass"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+                <div class="mb-2 text-end">
+                  <a href="#" class="text-decoration-none text-small">
+                    ¿Olvidaste tu contraseña?
+                  </a>
+                </div>
+                <div id="loginMsg" class="text-danger text-small mb-2"></div>
+                <button type="submit" class="btn btn-hu-accent w-100">
+                  <i class="bi bi-box-arrow-in-right me-1"></i>
+                  Entrar
+                </button>
+              </form>
+            </div>
+
+            <!-- REGISTRO -->
+            <div
+              class="tab-pane fade"
+              id="register-pane"
+              role="tabpanel"
+              aria-labelledby="register-tab"
+              tabindex="0"
+            >
+              <form onsubmit="event.preventDefault(); register();">
+                <div class="mb-3">
+                  <label for="registerName" class="form-label">Nombre completo</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="registerName"
+                    placeholder="Nombre y apellido"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="registerEmail" class="form-label">Correo</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="registerEmail"
+                    placeholder="correo@ejemplo.com"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="registerPass" class="form-label">Contraseña</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="registerPass"
+                    placeholder="Mínimo 6 caracteres"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="registerPass2" class="form-label">Repetir contraseña</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="registerPass2"
+                    placeholder="Repite tu contraseña"
+                    required
+                  />
+                </div>
+                <div id="registerMsg" class="text-danger text-small mb-2"></div>
+                <button type="submit" class="btn btn-hu-accent w-100">
+                  <i class="bi bi-person-plus me-1"></i>
+                  Crear cuenta
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0 d-flex justify-content-between">
+          <small class="text-muted">
+            Tus datos de acceso se guardan solo en este equipo (localStorage).
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer py-3 pie-pagina">
+    <div class="container text-center">
+      <small class="text-muted">
+        © 2025 Healthy U · The Big Bang Coders
+      </small>
+    </div>
+  </footer>
+
+  <!-- JS Bootstrap + JS principal -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
