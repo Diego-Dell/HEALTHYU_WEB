@@ -3,62 +3,122 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mi Cuenta – Healthy U</title>
+  <title>Healthy U - Mi cuenta</title>
 
   <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css">
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <!-- Iconos Bootstrap -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+  />
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-
-  <!-- NAV (con Precios ya incluido) -->
+  <!-- NAVBAR (mismo en todas las páginas) -->
   <nav
     class="navbar navbar-expand-lg navbar-light barra-navegacion"
     style="background-color: var(--bg-card); border-bottom: 1px solid var(--border-soft);"
   >
     <div class="container">
-
+      <!-- Logo -->
       <a class="navbar-brand" href="index.html">
-        <img src="IMAGENES/logo_horizontal.png" alt="Healthy U" style="max-height: 40px" />
+        <img
+          src="IMAGENES/logo_horizontal.png"
+          alt="Healthy U"
+          style="max-height: 40px"
+        />
       </a>
 
-      <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarHealthyU">
+      <!-- Botón hamburguesa -->
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarHealthyU"
+        aria-controls="navbarHealthyU"
+        aria-expanded="false"
+        aria-label="Mostrar navegación"
+      >
         <span class="navbar-toggler-icon"></span>
       </button>
 
+      <!-- Contenido -->
       <div class="collapse navbar-collapse" id="navbarHealthyU">
-
+        <!-- Menú principal -->
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0 menu-principal">
-          <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door me-1"></i>Inicio</a></li>
-          <li class="nav-item"><a class="nav-link" href="manual.html"><i class="bi bi-book me-1"></i>Manual</a></li>
-          <li class="nav-item"><a class="nav-link" href="blog.html"><i class="bi bi-journal-text me-1"></i>Blog</a></li>
-          <li class="nav-item"><a class="nav-link" href="contacto.html"><i class="bi bi-envelope me-1"></i>Contacto</a></li>
-          <li class="nav-item"><a class="nav-link" href="comprar.html"><i class="bi bi-tags me-1"></i>Precios</a></li>
+          <li class="nav-item">
+            <a class="nav-link" href="index.html" style="color: var(--text-main);">
+              <i class="bi bi-house-door me-1"></i>Inicio
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="manual.html" style="color: var(--text-main);">
+              <i class="bi bi-book me-1"></i>Manual
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="comprar.html" style="color: var(--text-main);">
+              <i class="bi bi-cash-coin me-1"></i>Precios
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="blog.html" style="color: var(--text-main);">
+              <i class="bi bi-journal-text me-1"></i>Blog
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="contacto.html" style="color: var(--text-main);">
+              <i class="bi bi-envelope me-1"></i>Contacto
+            </a>
+          </li>
         </ul>
 
-        <!-- LADO DERECHO -->
-        <div class="d-flex align-items-center ms-lg-4 mt-3 mt-lg-0 gap-2 border-start ps-lg-4 pt-2 pt-lg-0 zona-derecha-nav"
-             style="border-color: var(--border-soft) !important;">
-
-          <!-- Pedido -->
+        <!-- Lado derecho -->
+        <div
+          class="d-flex align-items-center ms-lg-4 mt-3 mt-lg-0 gap-2 border-start ps-lg-4 pt-2 pt-lg-0 zona-derecha-nav"
+          style="border-color: var(--border-soft) !important;"
+        >
+          <!-- Botón Pedido -->
           <a href="pedido.html" class="btn btn-dark btn-sm boton-pedido">
             <i class="bi bi-cart3 me-1"></i>
             Pedido
-            <span id="cartCount" class="badge bg-light text-dark ms-1" style="font-size:.7rem">0</span>
+            <span
+              id="cartCount"
+              class="badge bg-light text-dark ms-1"
+              style="font-size: 0.7rem"
+            >
+              0
+            </span>
           </a>
 
-          <!-- Login (JS lo reemplaza por Mi Cuenta si está logueado) -->
-          <button id="btnLoginNav" type="button" class="btn btn-hu-accent btn-sm boton-acceder"
-                  data-bs-toggle="modal" data-bs-target="#authModal">
-            <i class="bi bi-box-arrow-in-right me-1"></i>Acceder
+          <!-- Este botón se reemplaza por JS si el usuario está logueado -->
+          <button
+            id="btnLoginNav"
+            type="button"
+            class="btn btn-hu-accent btn-sm boton-acceder"
+            data-bs-toggle="modal"
+            data-bs-target="#authModal"
+          >
+            <i class="bi bi-box-arrow-in-right me-1"></i>
+            Acceder
           </button>
 
-          <!-- Tema -->
-          <button id="themeToggle" class="btn btn-outline-secondary btn-sm boton-tema">
+          <!-- Cambio de tema -->
+          <button
+            id="themeToggle"
+            type="button"
+            class="btn btn-outline-secondary btn-sm boton-tema"
+            title="Cambiar tema"
+          >
             <i class="bi bi-moon-stars"></i>
           </button>
         </div>
@@ -66,56 +126,277 @@
     </div>
   </nav>
 
-  <!-- HEADER -->
-  <header class="py-5 bg-hu-suave border-bottom">
-    <div class="container text-center">
-      <h1 class="section-title">Mi Cuenta</h1>
-      <p class="text-muted mb-0">Panel del usuario</p>
-    </div>
-  </header>
-
-  <!-- CONTENIDO -->
-  <main class="py-5">
+  <!-- CONTENIDO MI CUENTA -->
+  <main class="py-5 bg-hu-soft">
     <div class="container">
+      <h1 class="section-title text-center mb-2">Mi cuenta</h1>
+      <p class="text-center text-muted mb-4">
+        Completa tus datos personales y de acceso. No podrás usar todas las funciones
+        hasta que tu perfil esté completo.
+      </p>
 
-      <div class="row justify-content-center">
-        <div class="col-md-7">
-
-          <div class="hu-card p-4" id="profileBox">
-
-            <!-- Este contenido lo rellena script.js -->
-            <!-- Cuando el usuario NO está logueado -->
-            <!-- Se insertará: -->
-            <!-- <div class="alert alert-warning">Debes iniciar sesión</div> -->
-
-            <!-- Cuando SÍ está logueado script.js genera: -->
-            <!-- Foto -->
-            <!-- Nombre -->
-            <!-- Correo -->
-            <!-- Estadísticas -->
-            <!-- Botón cerrar sesión -->
-
-          </div>
-
-        </div>
+      <!-- Aviso de perfil incompleto -->
+      <div id="avisoPerfil" class="alert alert-warning d-none text-center mb-4">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+        Te faltan datos obligatorios. Completa todos los campos marcados con *
+        antes de usar el resto del sistema.
       </div>
 
+      <div class="row g-4">
+        <!-- Datos de acceso (tabla Usuario) -->
+        <div class="col-lg-4">
+          <div class="hu-card p-4 h-100">
+            <h2 class="h5 mb-3">
+              <i class="bi bi-person-circle me-1"></i>
+              Datos de acceso
+            </h2>
+
+            <div class="mb-3">
+              <label for="campoNombreUsuario" class="form-label">Nombre de usuario</label>
+              <input
+                type="text"
+                id="campoNombreUsuario"
+                class="form-control"
+                readonly
+              />
+              <div class="form-text">
+                Este es tu usuario para iniciar sesión.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="campoCiPaciente" class="form-label">CI del paciente</label>
+              <input
+                type="number"
+                id="campoCiPaciente"
+                class="form-control"
+                placeholder="Ej: 7896543"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Estado de la cuenta</label>
+              <input
+                type="text"
+                id="campoEstado"
+                class="form-control"
+                value="Activo"
+                readonly
+              />
+            </div>
+
+            <hr />
+
+            <h3 class="h6 mb-2">Cambiar contraseña</h3>
+            <div class="mb-2">
+              <label for="campoPassActual" class="form-label">Contraseña actual</label>
+              <input
+                type="password"
+                id="campoPassActual"
+                class="form-control"
+                placeholder="••••••••"
+              />
+            </div>
+            <div class="mb-2">
+              <label for="campoPassNueva" class="form-label">Nueva contraseña</label>
+              <input
+                type="password"
+                id="campoPassNueva"
+                class="form-control"
+                placeholder="Mínimo 6 caracteres"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="campoPassRepetir" class="form-label">Repetir nueva contraseña</label>
+              <input
+                type="password"
+                id="campoPassRepetir"
+                class="form-control"
+                placeholder="Repite la nueva contraseña"
+              />
+            </div>
+
+            <button id="btnCambiarPass" class="btn btn-outline-primary w-100">
+              <i class="bi bi-key-fill me-1"></i>
+              Actualizar contraseña
+            </button>
+
+            <div id="mensajePass" class="text-small mt-2"></div>
+          </div>
+        </div>
+
+        <!-- Datos personales (tabla Paciente) -->
+        <div class="col-lg-8">
+          <div class="hu-card p-4">
+            <h2 class="h5 mb-3">
+              <i class="bi bi-file-person me-1"></i>
+              Datos personales del paciente
+            </h2>
+
+            <form id="formPerfil">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="campoNombreCompleto" class="form-label">Nombre completo *</label>
+                  <input
+                    type="text"
+                    id="campoNombreCompleto"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label for="campoCorreo" class="form-label">Correo electrónico *</label>
+                  <input
+                    type="email"
+                    id="campoCorreo"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-4">
+                  <label for="campoCelular" class="form-label">Celular *</label>
+                  <input
+                    type="tel"
+                    id="campoCelular"
+                    class="form-control"
+                    placeholder="Ej: 70000000"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-4">
+                  <label for="campoEdad" class="form-label">Edad *</label>
+                  <input
+                    type="number"
+                    id="campoEdad"
+                    class="form-control"
+                    min="0"
+                    max="120"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-4">
+                  <label for="campoFechaNac" class="form-label">Fecha de nacimiento *</label>
+                  <input
+                    type="date"
+                    id="campoFechaNac"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label for="campoDireccion" class="form-label">Dirección *</label>
+                  <input
+                    type="text"
+                    id="campoDireccion"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-3">
+                  <label for="campoSexo" class="form-label">Sexo *</label>
+                  <select id="campoSexo" class="form-select" required>
+                    <option value="">Selecciona...</option>
+                    <option value="1">Femenino</option>
+                    <option value="0">Masculino</option>
+                  </select>
+                </div>
+
+                <div class="col-md-3">
+                  <label for="campoTipoSangre" class="form-label">Tipo de sangre *</label>
+                  <select id="campoTipoSangre" class="form-select" required>
+                    <option value="">Selecciona...</option>
+                    <option value="1">A+</option>
+                    <option value="2">A-</option>
+                    <option value="3">B+</option>
+                    <option value="4">B-</option>
+                    <option value="5">AB+</option>
+                    <option value="6">AB-</option>
+                    <option value="7">O+</option>
+                    <option value="8">O-</option>
+                  </select>
+                  <!-- Ajusta los valores según tu tabla Tipo_sangre -->
+                </div>
+
+                <div class="col-md-6">
+                  <label for="campoCentro" class="form-label">Centro de salud de referencia *</label>
+                  <select id="campoCentro" class="form-select" required>
+                    <option value="">Selecciona...</option>
+                    <!-- Aquí luego puedes cargar centros desde la BD -->
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="campoFotoPerfil" class="form-label">Foto de perfil</label>
+                  <input
+                    type="file"
+                    id="campoFotoPerfil"
+                    class="form-control"
+                    accept="image/*"
+                  />
+                  <div class="form-text">
+                    Opcional, se guarda como <code>varbinary(max)</code> en la BD.
+                  </div>
+                </div>
+
+                <div class="col-12 text-end">
+                  <button type="submit" class="btn btn-hu-accent">
+                    <i class="bi bi-save me-1"></i>
+                    Guardar datos
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <div id="mensajePerfil" class="text-small mt-2"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 
   <!-- FOOTER -->
   <footer class="footer py-3">
     <div class="container text-center">
-      <small class="text-muted">© 2025 Healthy U · The Big Bang Coders</small>
+      <small class="text-muted">
+        © 2025 Healthy U · The Big Bang Coders
+      </small>
     </div>
   </footer>
 
-  <!-- MODAL LOGIN / REGISTRO -->
-  <div class="modal fade" id="authModal" tabindex="-1">
+  <!-- MODAL LOGIN / REGISTRO (mismo que index, si lo usas aquí) -->
+  <!-- Si ya lo tienes en otro archivo y no quieres duplicar, puedes quitarlo. -->
+  <div
+    class="modal fade"
+    id="authModal"
+    tabindex="-1"
+    aria-labelledby="authModalLabel"
+    aria-hidden="true"
+  >
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content hu-card p-3">
-        <!-- Igual al de index (no lo repito para no duplicar, pero aquí debes pegar el mismo modal) -->
-        <!-- Lo tienes completo en index y blog -->
+      <div class="modal-content hu-card p-0">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title" id="authModalLabel">
+            <i class="bi bi-person-circle me-1"></i> Accede a Healthy U
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Cerrar"
+          ></button>
+        </div>
+        <div class="modal-body pt-2">
+          <p class="text-muted mb-0">
+            Esta es la página de Mi Cuenta. Para modificar tus datos debes iniciar sesión
+            desde la página de inicio.
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -124,5 +405,228 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="script.js"></script>
 
+  <!-- LÓGICA ESPECÍFICA DE MI CUENTA -->
+  <script>
+    // Clave donde guardas el usuario cuando haces login (ajusta si usas otra)
+    const CLAVE_USUARIO_LS = "usuario";      // aquí debe ir tu objeto { nombre_usuario, token, etc. }
+    const CLAVE_PERFIL_COMPLETO = "perfilCompleto";
+
+    let perfilCompleto = false;
+
+    // Verifica que haya usuario logueado, si no lo hay lo manda a inicio
+    function asegurarSesion() {
+      const usuario = localStorage.getItem(CLAVE_USUARIO_LS);
+      if (!usuario) {
+        alert("Debes iniciar sesión para acceder a Mi Cuenta.");
+        window.location.href = "index.html";
+        return null;
+      }
+      return JSON.parse(usuario);
+    }
+
+    // Marca si faltan datos obligatorios y bloquea navegación
+    function actualizarEstadoPerfil() {
+      const obligatorios = [
+        "campoNombreCompleto",
+        "campoCorreo",
+        "campoCelular",
+        "campoEdad",
+        "campoFechaNac",
+        "campoDireccion",
+        "campoSexo",
+        "campoTipoSangre",
+        "campoCentro",
+        "campoCiPaciente"
+      ];
+
+      perfilCompleto = obligatorios.every(id => {
+        const el = document.getElementById(id);
+        return el && el.value.trim() !== "";
+      });
+
+      const aviso = document.getElementById("avisoPerfil");
+      if (!perfilCompleto) {
+        aviso.classList.remove("d-none");
+        localStorage.setItem(CLAVE_PERFIL_COMPLETO, "false");
+      } else {
+        aviso.classList.add("d-none");
+        localStorage.setItem(CLAVE_PERFIL_COMPLETO, "true");
+      }
+    }
+
+    // Evita que el usuario salga de Mi Cuenta si el perfil está incompleto
+    function bloquearNavegacionSiIncompleto() {
+      const enlaces = document.querySelectorAll(
+        "a.nav-link, .boton-pedido, a[href$='.html']"
+      );
+      enlaces.forEach(a => {
+        a.addEventListener("click", function (e) {
+          if (!perfilCompleto && !this.href.endsWith("cuenta.html")) {
+            e.preventDefault();
+            alert("Completa todos tus datos en Mi Cuenta antes de continuar.");
+          }
+        });
+      });
+    }
+
+    // Carga inicial de datos desde backend (dejado como ejemplo)
+    async function cargarPerfilDesdeAPI(usuario) {
+      try {
+        // Ejemplo: suponemos que guardaste un token
+        // const token = usuario.token;
+
+        // const resp = await fetch("http://localhost:4000/api/cuenta/me", {
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //     "Authorization": "Bearer " + token
+        //   }
+        // });
+        // const data = await resp.json();
+
+        // DEMO: rellenamos solo el nombre de usuario desde localStorage
+        document.getElementById("campoNombreUsuario").value =
+          usuario.nombre_usuario || "sin_usuario";
+
+        // Si tu API devuelve los datos del paciente, aquí los asignas:
+        // document.getElementById("campoCiPaciente").value = data.ci_paciente || "";
+        // document.getElementById("campoNombreCompleto").value = data.nombre_completo || "";
+        // document.getElementById("campoCorreo").value = data.correo || "";
+        // document.getElementById("campoCelular").value = data.celular || "";
+        // document.getElementById("campoEdad").value = data.edad || "";
+        // document.getElementById("campoFechaNac").value = data.fecha_nacimiento?.substring(0,10) || "";
+        // document.getElementById("campoDireccion").value = data.direccion || "";
+        // document.getElementById("campoSexo").value = data.sexo;
+        // document.getElementById("campoTipoSangre").value = data.id_tipo_sangre;
+        // document.getElementById("campoCentro").value = data.id_centro;
+
+        actualizarEstadoPerfil();
+      } catch (error) {
+        console.error("Error cargando perfil:", error);
+      }
+    }
+
+    // Guarda cambios en el backend (ejemplo)
+    async function guardarPerfilEnAPI(e) {
+      e.preventDefault();
+      actualizarEstadoPerfil();
+
+      if (!perfilCompleto) {
+        alert("Completa todos los campos obligatorios (*) antes de guardar.");
+        return;
+      }
+
+      const usuario = JSON.parse(localStorage.getItem(CLAVE_USUARIO_LS));
+
+      const payload = {
+        ci_paciente: document.getElementById("campoCiPaciente").value.trim(),
+        nombre_completo: document.getElementById("campoNombreCompleto").value.trim(),
+        correo: document.getElementById("campoCorreo").value.trim(),
+        celular: document.getElementById("campoCelular").value.trim(),
+        edad: parseInt(document.getElementById("campoEdad").value, 10),
+        direccion: document.getElementById("campoDireccion").value.trim(),
+        sexo: document.getElementById("campoSexo").value,
+        id_tipo_sangre: document.getElementById("campoTipoSangre").value,
+        id_centro: document.getElementById("campoCentro").value,
+        fecha_nacimiento: document.getElementById("campoFechaNac").value
+      };
+
+      try {
+        // const resp = await fetch("http://localhost:4000/api/cuenta/me", {
+        //   method: "PUT",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //     "Authorization": "Bearer " + usuario.token
+        //   },
+        //   body: JSON.stringify(payload)
+        // });
+        // const data = await resp.json();
+
+        document.getElementById("mensajePerfil").textContent =
+          "Datos guardados (simulación para la maqueta).";
+        document.getElementById("mensajePerfil").classList.add("text-success");
+
+        actualizarEstadoPerfil();
+      } catch (error) {
+        console.error("Error guardando perfil:", error);
+        document.getElementById("mensajePerfil").textContent =
+          "Error al guardar los datos.";
+        document.getElementById("mensajePerfil").classList.add("text-danger");
+      }
+    }
+
+    // Cambiar contraseña (solo front por ahora)
+    async function cambiarContrasena() {
+      const actual = document.getElementById("campoPassActual").value.trim();
+      const nueva = document.getElementById("campoPassNueva").value.trim();
+      const repetir = document.getElementById("campoPassRepetir").value.trim();
+      const msg = document.getElementById("mensajePass");
+
+      msg.textContent = "";
+      msg.classList.remove("text-success", "text-danger");
+
+      if (!actual || !nueva || !repetir) {
+        msg.textContent = "Completa todos los campos de contraseña.";
+        msg.classList.add("text-danger");
+        return;
+      }
+      if (nueva.length < 6) {
+        msg.textContent = "La nueva contraseña debe tener al menos 6 caracteres.";
+        msg.classList.add("text-danger");
+        return;
+      }
+      if (nueva !== repetir) {
+        msg.textContent = "La nueva contraseña no coincide.";
+        msg.classList.add("text-danger");
+        return;
+      }
+
+      try {
+        // Ejemplo de llamado real:
+        // const usuario = JSON.parse(localStorage.getItem(CLAVE_USUARIO_LS));
+        // const resp = await fetch("http://localhost:4000/api/auth/cambiar-pass", {
+        //   method: "POST",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //     "Authorization": "Bearer " + usuario.token
+        //   },
+        //   body: JSON.stringify({ actual, nueva })
+        // });
+        // const data = await resp.json();
+
+        msg.textContent = "Contraseña actualizada (simulación para la maqueta).";
+        msg.classList.add("text-success");
+
+        document.getElementById("campoPassActual").value = "";
+        document.getElementById("campoPassNueva").value = "";
+        document.getElementById("campoPassRepetir").value = "";
+      } catch (error) {
+        console.error("Error cambiando contraseña:", error);
+        msg.textContent = "Error al cambiar la contraseña.";
+        msg.classList.add("text-danger");
+      }
+    }
+
+    // INICIALIZAR
+    document.addEventListener("DOMContentLoaded", () => {
+      const usuario = asegurarSesion();
+      if (!usuario) return;
+
+      cargarPerfilDesdeAPI(usuario);
+      bloquearNavegacionSiIncompleto();
+
+      document
+        .getElementById("formPerfil")
+        .addEventListener("submit", guardarPerfilEnAPI);
+
+      document
+        .getElementById("btnCambiarPass")
+        .addEventListener("click", cambiarContrasena);
+
+      // Recalcular cada vez que cambia un campo
+      document
+        .querySelectorAll("#formPerfil input, #formPerfil select, #campoCiPaciente")
+        .forEach(el => el.addEventListener("input", actualizarEstadoPerfil));
+    });
+  </script>
 </body>
 </html>
