@@ -3,7 +3,6 @@ const API_BASE = "http://localhost:4000/api";
 
 
 // ================= UTILIDADES LOCALSTORAGE =================
-
 function leerLS(clave, defecto) {
   const dato = localStorage.getItem(clave);
   return dato ? JSON.parse(dato) : (defecto ?? null);
@@ -14,20 +13,20 @@ function guardarLS(clave, valor) {
 }
 
 // claves base
-const CLAVE_USUARIO = "hu_usuario";      // sesión
-const CLAVE_CARRITO = "hu_carrito";
+const CLAVE_USUARIO   = "hu_usuario";      // sesión
+const CLAVE_CARRITO   = "hu_carrito";
 const CLAVE_COMPRADOR = "hu_comprador";
-const CLAVE_POSTS = "hu_posts";
+const CLAVE_POSTS     = "hu_posts";
 const CLAVE_NEWSLETTER = "hu_newsletter";
 
-// ================= SESIÓN / USUARIO (BACKEND) =================
+
+// ================= SESIÓN / USUARIO =================
 function obtenerUsuario() {
-  const raw = localStorage.getItem(CLAVE_USUARIO);
-  return raw ? JSON.parse(raw) : null;
+  return leerLS(CLAVE_USUARIO, null);
 }
 
 function guardarUsuario(usuario) {
-  localStorage.setItem(CLAVE_USUARIO, JSON.stringify(usuario));
+  guardarLS(CLAVE_USUARIO, usuario);
 }
 
 function estaLogueado() {
@@ -38,6 +37,7 @@ function logout() {
   localStorage.removeItem(CLAVE_USUARIO);
   window.location.href = "index.html";
 }
+
 
 // ================= TEMA CLARO / OSCURO =================
 function aplicarTema(tema) {
@@ -74,24 +74,35 @@ function iniciarTema() {
   }
 }
 
-// ================= NAVBAR: ACCEDER / MI CUENTA =================
+
+// ================= NAVBAR: BOTÓN ACCEDER / MI CUENTA =================
 function actualizarNavAuth() {
   const usuario = obtenerUsuario();
+  const btnLogin = document.getElementById("btnLoginNav");
 
-  const navLogin = document.getElementById("navLogin");
-  const navCuenta = document.getElementById("navCuenta");
-  const navCerrar = document.getElementById("navCerrarSesion");
-
-  if (!navLogin || !navCuenta || !navCerrar) return;
+  if (!btnLogin) return;
 
   if (usuario) {
-    navLogin.classList.add("d-none");
-    navCuenta.classList.remove("d-none");
-    navCerrar.classList.remove("d-none");
+    // Mostrar "Mi cuenta"
+    btnLogin.innerHTML = '<i class="bi bi-person-badge me-1"></i> Mi cuenta';
+    btnLogin.classList.remove("btn-hu-accent");
+    btnLogin.classList.add("btn-outline-primary");
+
+    btnLogin.removeAttribute("data-bs-toggle");
+    btnLogin.removeAttribute("data-bs-target");
+
+    btnLogin.onclick = () => {
+      window.location.href = "cuenta.html";
+    };
   } else {
-    navLogin.classList.remove("d-none");
-    navCuenta.classList.add("d-none");
-    navCerrar.classList.add("d-none");
+    // Mostrar "Acceder" (abre modal)
+    btnLogin.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i> Acceder';
+    btnLogin.classList.add("btn-hu-accent");
+    btnLogin.classList.remove("btn-outline-primary");
+
+    btnLogin.setAttribute("data-bs-toggle", "modal");
+    btnLogin.setAttribute("data-bs-target", "#authModal");
+    btnLogin.onclick = null;
   }
 }
 
@@ -104,8 +115,10 @@ async function login(nombreUsuarioForzado = null, passForzado = null, silencioso
   const passInput    = document.getElementById("loginPass");
   const msg          = document.getElementById("loginMsg");
 
-  const nombre_usuario = (nombreUsuarioForzado ?? (usuarioInput && usuarioInput.value.trim())) || "";
-  const contrasena     = (passForzado ?? (passInput && passInput.value.trim())) || "";
+  const nombre_usuario =
+    (nombreUsuarioForzado ?? (usuarioInput && usuarioInput.value.trim())) || "";
+  const contrasena =
+    (passForzado ?? (passInput && passInput.value.trim())) || "";
 
   if (!nombre_usuario || !contrasena) {
     if (!silencioso && msg) {
@@ -143,7 +156,7 @@ async function login(nombreUsuarioForzado = null, passForzado = null, silencioso
 
     // Cerrar modal
     const modalEl = document.getElementById("authModal");
-    if (!silencioso && modalEl && bootstrap?.Modal?.getInstance) {
+    if (!silencioso && modalEl && window.bootstrap?.Modal?.getInstance) {
       const modal = bootstrap.Modal.getInstance(modalEl);
       if (modal) modal.hide();
     }
@@ -154,7 +167,7 @@ async function login(nombreUsuarioForzado = null, passForzado = null, silencioso
 
     return true;
   } catch (err) {
-    console.error(err);
+    console.error("Error login:", err);
     if (!silencioso && msg) {
       msg.textContent = "No se pudo conectar con el servidor (API).";
       msg.className = "text-danger text-small";
@@ -163,19 +176,43 @@ async function login(nombreUsuarioForzado = null, passForzado = null, silencioso
   }
 }
 
-// REGISTRO (usa solo datos de la tabla Usuario)
+// REGISTRO (soporta formularios con registerUser ó registerName/registerEmail)
 async function register() {
-  const usuarioInput = document.getElementById("registerUser");
-  const passInput    = document.getElementById("registerPass");
-  const pass2Input   = document.getElementById("registerPass2");
-  const msg          = document.getElementById("registerMsg");
+  const msg = document.getElementById("registerMsg");
+  if (!msg) return;
 
-  if (!usuarioInput || !passInput || !pass2Input || !msg) return;
+  const inputUser   = document.getElementById("registerUser");   // index.html
+  const inputName   = document.getElementById("registerName");   // manual/contacto
+  const inputEmail  = document.getElementById("registerEmail");  // manual/contacto
+  const passInput   = document.getElementById("registerPass");
+  const pass2Input  = document.getElementById("registerPass2");
 
-  const nombre_usuario = usuarioInput.value.trim();
-  const contrasena     = passInput.value.trim();
-  const contrasena2    = pass2Input.value.trim();
+  if (!passInput || !pass2Input) return;
 
+  let nombre_usuario = "";
+  let nombre = "";
+  let correo = "";
+
+  if (inputUser) {
+    // Caso index: el usuario escribe directamente su nombre de usuario
+    nombre_usuario = inputUser.value.trim();
+  } else if (inputName) {
+    // Caso modal con nombre + correo
+    nombre = inputName.value.trim();
+  }
+
+  if (inputEmail) {
+    correo = inputEmail.value.trim();
+    // Si no hay registerUser, usamos el correo para generar nombre_usuario
+    if (!nombre_usuario && correo) {
+      nombre_usuario = correo.split("@")[0];
+    }
+  }
+
+  const contrasena  = passInput.value.trim();
+  const contrasena2 = pass2Input.value.trim();
+
+  // ===== Validaciones básicas =====
   if (!nombre_usuario || !contrasena || !contrasena2) {
     msg.textContent = "Completa todos los campos.";
     msg.className = "text-danger text-small";
@@ -188,11 +225,27 @@ async function register() {
     return;
   }
 
+  if (contrasena.length < 6) {
+    msg.textContent = "La contraseña debe tener al menos 6 caracteres.";
+    msg.className = "text-danger text-small";
+    return;
+  }
+
+  // ===== Armamos payload para la API =====
+  const payload = {
+    nombre_usuario,
+    contrasena
+  };
+
+  // Si tu backend acepta estos campos, los mandamos también
+  if (nombre) payload.nombre = nombre;
+  if (correo) payload.correo = correo;
+
   try {
     const respuesta = await fetch(`${API_BASE}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre_usuario, contrasena })
+      body: JSON.stringify(payload)
     });
 
     const data = await respuesta.json().catch(() => ({}));
@@ -200,6 +253,7 @@ async function register() {
     if (!respuesta.ok) {
       msg.textContent = data.mensaje || "Error registrando usuario.";
       msg.className = "text-danger text-small";
+      console.error("Error registro:", respuesta.status, data);
       return;
     }
 
@@ -210,7 +264,7 @@ async function register() {
       msg.className = "text-success text-small";
 
       const modalEl = document.getElementById("authModal");
-      if (modalEl && bootstrap?.Modal?.getInstance) {
+      if (modalEl && window.bootstrap?.Modal?.getInstance) {
         const modal = bootstrap.Modal.getInstance(modalEl);
         if (modal) modal.hide();
       }
@@ -221,11 +275,12 @@ async function register() {
       msg.className = "text-success text-small";
     }
   } catch (err) {
-    console.error(err);
+    console.error("Error de red en registro:", err);
     msg.textContent = "No se pudo conectar con el servidor (API).";
     msg.className = "text-danger text-small";
   }
 }
+
 
 // ================= NEWSLETTER =================
 function suscribirNewsletter() {
@@ -251,6 +306,7 @@ function suscribirNewsletter() {
   input.value = "";
 }
 
+
 // ================= CARRITO =================
 function obtenerCarrito() {
   return leerLS(CLAVE_CARRITO, []);
@@ -264,8 +320,8 @@ function actualizarContadorCarrito() {
   const carrito = obtenerCarrito();
   const total = carrito.reduce((acc, item) => acc + item.cantidad, 0);
 
-  const span1 = document.getElementById("cart-count");
-  const span2 = document.getElementById("cartCount");
+  const span1 = document.getElementById("cart-count"); // icono en pedido.html
+  const span2 = document.getElementById("cartCount");  // icono en navbar general
 
   if (span1) span1.textContent = total;
   if (span2) span2.textContent = total;
@@ -308,7 +364,8 @@ function iniciarComprar() {
   });
 }
 
-// ================= DATOS DEL COMPRADOR =================
+
+// ================= DATOS DEL COMPRADOR (datos.html) =================
 function obtenerComprador() {
   return leerLS(CLAVE_COMPRADOR, null);
 }
@@ -323,10 +380,10 @@ function iniciarDatos() {
 
   const comprador = obtenerComprador();
   if (comprador) {
-    formulario.nombre.value = comprador.nombre || "";
+    formulario.nombre.value    = comprador.nombre || "";
     formulario.direccion.value = comprador.direccion || "";
-    formulario.telefono.value = comprador.telefono || "";
-    formulario.correo.value = comprador.correo || "";
+    formulario.telefono.value  = comprador.telefono || "";
+    formulario.correo.value    = comprador.correo || "";
     formulario.ubicacion.value = comprador.ubicacion || "";
   }
 
@@ -334,10 +391,10 @@ function iniciarDatos() {
     e.preventDefault();
 
     const datos = {
-      nombre: formulario.nombre.value.trim(),
+      nombre:    formulario.nombre.value.trim(),
       direccion: formulario.direccion.value.trim(),
-      telefono: formulario.telefono.value.trim(),
-      correo: formulario.correo.value.trim(),
+      telefono:  formulario.telefono.value.trim(),
+      correo:    formulario.correo.value.trim(),
       ubicacion: formulario.ubicacion.value.trim(),
     };
 
@@ -345,6 +402,7 @@ function iniciarDatos() {
     window.location.href = "pedido.html";
   });
 }
+
 
 // ================= PÁGINA PEDIDO =================
 function iniciarPedido() {
@@ -444,7 +502,8 @@ function iniciarPedido() {
   }
 }
 
-// ================= BLOG (LOCAL) =================
+
+// ================= BLOG LOCAL (si lo sigues usando) =================
 function obtenerPosts() {
   return leerLS(CLAVE_POSTS, []);
 }
@@ -605,7 +664,8 @@ function iniciarBlog() {
   mostrarPosts();
 }
 
-// ================= PERFIL / CUENTA (BÁSICO) =================
+
+// ================= PERFIL / CUENTA (BÁSICO, si usas profileBox) =================
 function iniciarPerfil() {
   const caja = document.getElementById("profileBox");
   if (!caja) return;
@@ -614,8 +674,8 @@ function iniciarPerfil() {
 
   const nombreEl = document.getElementById("profileUsername");
   const correoEl = document.getElementById("profileEmail");
-  const postsEl = document.getElementById("profilePostsCount");
-  const temaEl = document.getElementById("profileTheme");
+  const postsEl  = document.getElementById("profilePostsCount");
+  const temaEl   = document.getElementById("profileTheme");
 
   if (!usuario) {
     caja.innerHTML =
@@ -632,11 +692,12 @@ function iniciarPerfil() {
   if (nombreEl) nombreEl.textContent =
     usuario.nombre_usuario || usuario.username || usuario.nombre || "";
   if (correoEl) correoEl.textContent = usuario.correo || "";
-  if (postsEl) postsEl.textContent = posts.length.toString();
+  if (postsEl)  postsEl.textContent = posts.length.toString();
   if (temaEl)
     temaEl.textContent =
       localStorage.getItem("huTema") === "dark" ? "Oscuro" : "Claro";
 }
+
 
 // ================= INICIALIZACIÓN GLOBAL =================
 document.addEventListener("DOMContentLoaded", () => {
@@ -649,16 +710,3 @@ document.addEventListener("DOMContentLoaded", () => {
   iniciarBlog();
   iniciarPerfil();
 });
-
-
-// Cerrar sesión
-function logout() {
-  localStorage.removeItem("usuario");
-  localStorage.removeItem("token");
-
-  // Refrescar navegación
-  actualizarNavAuth();
-
-  // Redirigir
-  window.location.href = "index.html";
-}
