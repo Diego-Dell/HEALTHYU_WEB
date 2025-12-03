@@ -221,6 +221,12 @@
               Actualizar contraseña
             </button>
 
+              <button id="botonEliminarCuenta" class="btn btn-outline-danger w-100 mt-3">
+                <i class="bi bi-trash3-fill me-1"></i>
+                Eliminar cuenta
+              </button>
+
+
             <div id="mensajePass" class="text-small mt-2"></div>
           </div>
         </div>
@@ -266,17 +272,6 @@
                   />
                 </div>
 
-                <div class="col-md-4">
-                  <label for="campoEdad" class="form-label">Edad *</label>
-                  <input
-                    type="number"
-                    id="campoEdad"
-                    class="form-control"
-                    min="0"
-                    max="120"
-                    required
-                  />
-                </div>
 
                 <div class="col-md-4">
                   <label for="campoFechaNac" class="form-label">Fecha de nacimiento *</label>
@@ -324,8 +319,8 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label for="campoCentro" class="form-label">Centro de salud de referencia *</label>
-                  <select id="campoCentro" class="form-select" required>
+                  <label for="campoCentro" class="form-label">Centro de salud de referencia</label>
+                  <select id="campoCentro" class="form-select">
                     <option value="">Selecciona...</option>
                     <!-- Aquí luego puedes cargar centros desde la BD -->
                   </select>
@@ -350,6 +345,11 @@
                     Guardar datos
                   </button>
                 </div>
+                <button class="btn btn-outline-secondary w-100 mt-3" onclick="logout()">
+                  <i class="bi bi-box-arrow-right me-1"></i>
+                  Cerrar sesión
+                </button>
+
               </div>
             </form>
 
@@ -406,227 +406,356 @@
   <script src="script.js"></script>
 
   <!-- LÓGICA ESPECÍFICA DE MI CUENTA -->
-  <script>
-    // Clave donde guardas el usuario cuando haces login (ajusta si usas otra)
-    const CLAVE_USUARIO_LS = "usuario";      // aquí debe ir tu objeto { nombre_usuario, token, etc. }
-    const CLAVE_PERFIL_COMPLETO = "perfilCompleto";
+<script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    // Funciones globales que ya tienes en script.js
+    iniciarTema();
+    actualizarNavAuth();
+
+    const usuario = obtenerUsuario();
+    if (!usuario) {
+      alert("Debes iniciar sesión para acceder a Mi Cuenta.");
+      window.location.href = "index.html";
+      return;
+    }
+
+    const campoNombreUsuario = document.getElementById("campoNombreUsuario");
+    const campoEstado = document.getElementById("campoEstado");
+
+    if (campoNombreUsuario) {
+      campoNombreUsuario.value = usuario.nombre_usuario || "";
+    }
+    if (campoEstado) {
+      campoEstado.value =
+        usuario.estado === 0 || usuario.estado === false
+          ? "Inactivo"
+          : "Activo";
+    }
 
     let perfilCompleto = false;
 
-    // Verifica que haya usuario logueado, si no lo hay lo manda a inicio
-    function asegurarSesion() {
-      const usuario = localStorage.getItem(CLAVE_USUARIO_LS);
-      if (!usuario) {
-        alert("Debes iniciar sesión para acceder a Mi Cuenta.");
-        window.location.href = "index.html";
-        return null;
-      }
-      return JSON.parse(usuario);
-    }
-
-    // Marca si faltan datos obligatorios y bloquea navegación
+    // ================== VALIDACIÓN DE PERFIL (sin edad y sin centro obligatorio) ==================
     function actualizarEstadoPerfil() {
-      const obligatorios = [
+      const camposObligatorios = [
+        "campoCiPaciente",
         "campoNombreCompleto",
         "campoCorreo",
         "campoCelular",
-        "campoEdad",
         "campoFechaNac",
         "campoDireccion",
         "campoSexo",
-        "campoTipoSangre",
-        "campoCentro",
-        "campoCiPaciente"
+        "campoTipoSangre"
+        // NOTA: NO incluimos campoEdad ni campoCentro aquí
       ];
 
-      perfilCompleto = obligatorios.every(id => {
-        const el = document.getElementById(id);
-        return el && el.value.trim() !== "";
+      perfilCompleto = camposObligatorios.every((id) => {
+        const elemento = document.getElementById(id);
+        return elemento && String(elemento.value).trim() !== "";
       });
 
       const aviso = document.getElementById("avisoPerfil");
-      if (!perfilCompleto) {
-        aviso.classList.remove("d-none");
-        localStorage.setItem(CLAVE_PERFIL_COMPLETO, "false");
-      } else {
+      if (!aviso) return;
+
+      if (perfilCompleto) {
         aviso.classList.add("d-none");
-        localStorage.setItem(CLAVE_PERFIL_COMPLETO, "true");
+      } else {
+        aviso.classList.remove("d-none");
       }
     }
 
-    // Evita que el usuario salga de Mi Cuenta si el perfil está incompleto
     function bloquearNavegacionSiIncompleto() {
-      const enlaces = document.querySelectorAll(
-        "a.nav-link, .boton-pedido, a[href$='.html']"
-      );
-      enlaces.forEach(a => {
-        a.addEventListener("click", function (e) {
-          if (!perfilCompleto && !this.href.endsWith("cuenta.html")) {
-            e.preventDefault();
-            alert("Completa todos tus datos en Mi Cuenta antes de continuar.");
+      const enlaces = document.querySelectorAll("a.nav-link, a[href$='.html']");
+
+      enlaces.forEach((enlace) => {
+        enlace.addEventListener("click", (evento) => {
+          const href = enlace.getAttribute("href") || "";
+          const esCuenta =
+            href === "#" || href === "" || href.includes("cuenta.html");
+
+          if (!perfilCompleto && !esCuenta) {
+            evento.preventDefault();
+            alert(
+              "Completa tus datos básicos de paciente en Mi Cuenta antes de continuar."
+            );
           }
         });
       });
     }
 
-    // Carga inicial de datos desde backend (dejado como ejemplo)
-    async function cargarPerfilDesdeAPI(usuario) {
+    // ================== CARGAR PERFIL DESDE LA API ==================
+    async function cargarPerfilDesdeAPI() {
+      const avisoPerfil = document.getElementById("mensajePerfil");
+
       try {
-        // Ejemplo: suponemos que guardaste un token
-        // const token = usuario.token;
+        const respuesta = await fetch(
+          `${API_BASE}/pacientes/por-usuario/${usuario.id_usuario}`
+        );
 
-        // const resp = await fetch("http://localhost:4000/api/cuenta/me", {
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //     "Authorization": "Bearer " + token
-        //   }
-        // });
-        // const data = await resp.json();
+        if (respuesta.status === 404) {
+          if (avisoPerfil) {
+            avisoPerfil.textContent =
+              "Aún no tienes datos de paciente, completa el formulario.";
+            avisoPerfil.className = "text-muted text-small";
+          }
+          actualizarEstadoPerfil();
+          return;
+        }
 
-        // DEMO: rellenamos solo el nombre de usuario desde localStorage
-        document.getElementById("campoNombreUsuario").value =
-          usuario.nombre_usuario || "sin_usuario";
+        if (!respuesta.ok) {
+          throw new Error("Error al cargar el perfil");
+        }
 
-        // Si tu API devuelve los datos del paciente, aquí los asignas:
-        // document.getElementById("campoCiPaciente").value = data.ci_paciente || "";
-        // document.getElementById("campoNombreCompleto").value = data.nombre_completo || "";
-        // document.getElementById("campoCorreo").value = data.correo || "";
-        // document.getElementById("campoCelular").value = data.celular || "";
-        // document.getElementById("campoEdad").value = data.edad || "";
-        // document.getElementById("campoFechaNac").value = data.fecha_nacimiento?.substring(0,10) || "";
-        // document.getElementById("campoDireccion").value = data.direccion || "";
-        // document.getElementById("campoSexo").value = data.sexo;
-        // document.getElementById("campoTipoSangre").value = data.id_tipo_sangre;
-        // document.getElementById("campoCentro").value = data.id_centro;
+        const datos = await respuesta.json();
+        const paciente = datos.paciente || datos;
+
+        // Asignar campos (sin edad)
+        document.getElementById("campoCiPaciente").value =
+          paciente.ci_paciente ?? "";
+        document.getElementById("campoNombreCompleto").value =
+          paciente.nombre_completo ?? "";
+        document.getElementById("campoCorreo").value = paciente.correo ?? "";
+        document.getElementById("campoCelular").value = paciente.celular ?? "";
+        document.getElementById("campoDireccion").value =
+          paciente.direccion ?? "";
+
+        if (paciente.fecha_nacimiento) {
+          document.getElementById("campoFechaNac").value = String(
+            paciente.fecha_nacimiento
+          ).substring(0, 10);
+        }
+
+        const campoSexo = document.getElementById("campoSexo");
+        if (campoSexo) {
+          if (paciente.sexo === 0 || paciente.sexo === 1) {
+            campoSexo.value = String(paciente.sexo);
+          } else {
+            campoSexo.value = "";
+          }
+        }
+
+        const campoTipoSangre = document.getElementById("campoTipoSangre");
+        if (campoTipoSangre && paciente.id_tipo_sangre) {
+          campoTipoSangre.value = paciente.id_tipo_sangre;
+        }
+
+        if (avisoPerfil) {
+          avisoPerfil.textContent = "Datos cargados desde la base de datos.";
+          avisoPerfil.className = "text-success text-small";
+        }
 
         actualizarEstadoPerfil();
       } catch (error) {
-        console.error("Error cargando perfil:", error);
+        console.error(error);
+        if (avisoPerfil) {
+          avisoPerfil.textContent =
+            "No se pudieron cargar los datos del paciente.";
+          avisoPerfil.className = "text-danger text-small";
+        }
       }
     }
 
-    // Guarda cambios en el backend (ejemplo)
-    async function guardarPerfilEnAPI(e) {
-      e.preventDefault();
-      actualizarEstadoPerfil();
+    // ================== GUARDAR PERFIL EN LA API ==================
+    async function guardarPerfilEnAPI(evento) {
+      evento.preventDefault();
 
+      actualizarEstadoPerfil();
       if (!perfilCompleto) {
         alert("Completa todos los campos obligatorios (*) antes de guardar.");
         return;
       }
 
-      const usuario = JSON.parse(localStorage.getItem(CLAVE_USUARIO_LS));
+      const avisoPerfil = document.getElementById("mensajePerfil");
 
-      const payload = {
-        ci_paciente: document.getElementById("campoCiPaciente").value.trim(),
-        nombre_completo: document.getElementById("campoNombreCompleto").value.trim(),
+      const datosEnviar = {
+        ci_paciente: Number(
+          document.getElementById("campoCiPaciente").value
+        ),
+        nombre_completo: document
+          .getElementById("campoNombreCompleto")
+          .value.trim(),
         correo: document.getElementById("campoCorreo").value.trim(),
         celular: document.getElementById("campoCelular").value.trim(),
-        edad: parseInt(document.getElementById("campoEdad").value, 10),
+        fecha_nacimiento: document.getElementById("campoFechaNac").value,
         direccion: document.getElementById("campoDireccion").value.trim(),
-        sexo: document.getElementById("campoSexo").value,
-        id_tipo_sangre: document.getElementById("campoTipoSangre").value,
-        id_centro: document.getElementById("campoCentro").value,
-        fecha_nacimiento: document.getElementById("campoFechaNac").value
+        sexo: Number(document.getElementById("campoSexo").value),
+        id_tipo_sangre: Number(
+          document.getElementById("campoTipoSangre").value
+        )
+        // NO enviamos edad; si quieres la puedes calcular en backend por fecha_nacimiento
       };
 
-      try {
-        // const resp = await fetch("http://localhost:4000/api/cuenta/me", {
-        //   method: "PUT",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //     "Authorization": "Bearer " + usuario.token
-        //   },
-        //   body: JSON.stringify(payload)
-        // });
-        // const data = await resp.json();
+      // Si existe un campo centro de salud y quieres enviarlo pero NO obligatorio:
+      const campoCentro = document.getElementById("campoCentro");
+      if (campoCentro && campoCentro.value.trim() !== "") {
+        datosEnviar.id_centro = Number(campoCentro.value);
+      }
 
-        document.getElementById("mensajePerfil").textContent =
-          "Datos guardados (simulación para la maqueta).";
-        document.getElementById("mensajePerfil").classList.add("text-success");
+      try {
+        const respuesta = await fetch(
+          `${API_BASE}/pacientes/por-usuario/${usuario.id_usuario}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(datosEnviar)
+          }
+        );
+
+        const datos = await respuesta.json().catch(() => ({}));
+
+        if (!respuesta.ok) {
+          throw new Error(datos.mensaje || "Error al guardar los datos");
+        }
+
+        if (avisoPerfil) {
+          avisoPerfil.textContent =
+            "Datos de paciente guardados correctamente en la base de datos.";
+          avisoPerfil.className = "text-success text-small";
+        }
 
         actualizarEstadoPerfil();
       } catch (error) {
-        console.error("Error guardando perfil:", error);
-        document.getElementById("mensajePerfil").textContent =
-          "Error al guardar los datos.";
-        document.getElementById("mensajePerfil").classList.add("text-danger");
+        console.error(error);
+        if (avisoPerfil) {
+          avisoPerfil.textContent =
+            error.message || "No se pudieron guardar los datos.";
+          avisoPerfil.className = "text-danger text-small";
+        }
       }
     }
 
-    // Cambiar contraseña (solo front por ahora)
+    // ================== CAMBIO DE CONTRASEÑA ==================
     async function cambiarContrasena() {
-      const actual = document.getElementById("campoPassActual").value.trim();
-      const nueva = document.getElementById("campoPassNueva").value.trim();
-      const repetir = document.getElementById("campoPassRepetir").value.trim();
-      const msg = document.getElementById("mensajePass");
+      const contrasenaActual = document
+        .getElementById("campoPassActual")
+        .value.trim();
+      const contrasenaNueva = document
+        .getElementById("campoPassNueva")
+        .value.trim();
+      const contrasenaRepetir = document
+        .getElementById("campoPassRepetir")
+        .value.trim();
 
-      msg.textContent = "";
-      msg.classList.remove("text-success", "text-danger");
+      const mensajePass = document.getElementById("mensajePass");
 
-      if (!actual || !nueva || !repetir) {
-        msg.textContent = "Completa todos los campos de contraseña.";
-        msg.classList.add("text-danger");
+      if (!contrasenaActual || !contrasenaNueva || !contrasenaRepetir) {
+        if (mensajePass) {
+          mensajePass.textContent = "Completa todos los campos.";
+          mensajePass.className = "text-danger text-small";
+        }
         return;
       }
-      if (nueva.length < 6) {
-        msg.textContent = "La nueva contraseña debe tener al menos 6 caracteres.";
-        msg.classList.add("text-danger");
+
+      if (contrasenaNueva.length < 6) {
+        if (mensajePass) {
+          mensajePass.textContent =
+            "La nueva contraseña debe tener al menos 6 caracteres.";
+          mensajePass.className = "text-danger text-small";
+        }
         return;
       }
-      if (nueva !== repetir) {
-        msg.textContent = "La nueva contraseña no coincide.";
-        msg.classList.add("text-danger");
+
+      if (contrasenaNueva !== contrasenaRepetir) {
+        if (mensajePass) {
+          mensajePass.textContent = "Las contraseñas nuevas no coinciden.";
+          mensajePass.className = "text-danger text-small";
+        }
         return;
       }
 
       try {
-        // Ejemplo de llamado real:
-        // const usuario = JSON.parse(localStorage.getItem(CLAVE_USUARIO_LS));
-        // const resp = await fetch("http://localhost:4000/api/auth/cambiar-pass", {
-        //   method: "POST",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //     "Authorization": "Bearer " + usuario.token
-        //   },
-        //   body: JSON.stringify({ actual, nueva })
-        // });
-        // const data = await resp.json();
+        const respuesta = await fetch(`${API_BASE}/auth/cambiar-password`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id_usuario: usuario.id_usuario,
+            contrasenaActual,
+            contrasenaNueva
+          })
+        });
 
-        msg.textContent = "Contraseña actualizada (simulación para la maqueta).";
-        msg.classList.add("text-success");
+        const datos = await respuesta.json().catch(() => ({}));
+
+        if (!respuesta.ok) {
+          throw new Error(
+            datos.mensaje || "No se pudo actualizar la contraseña"
+          );
+        }
+
+        if (mensajePass) {
+          mensajePass.textContent = "Contraseña actualizada correctamente.";
+          mensajePass.className = "text-success text-small";
+        }
 
         document.getElementById("campoPassActual").value = "";
         document.getElementById("campoPassNueva").value = "";
         document.getElementById("campoPassRepetir").value = "";
       } catch (error) {
-        console.error("Error cambiando contraseña:", error);
-        msg.textContent = "Error al cambiar la contraseña.";
-        msg.classList.add("text-danger");
+        console.error(error);
+        if (mensajePass) {
+          mensajePass.textContent =
+            error.message || "Error al actualizar la contraseña.";
+          mensajePass.className = "text-danger text-small";
+        }
       }
     }
 
-    // INICIALIZAR
-    document.addEventListener("DOMContentLoaded", () => {
-      const usuario = asegurarSesion();
-      if (!usuario) return;
+    // ================== ELIMINAR CUENTA ==================
+    async function eliminarCuenta() {
+      const confirmar = confirm(
+        "Esta acción eliminará tu cuenta y no podrás volver a iniciar sesión con este usuario. ¿Deseas continuar?"
+      );
+      if (!confirmar) return;
 
-      cargarPerfilDesdeAPI(usuario);
-      bloquearNavegacionSiIncompleto();
+      try {
+        const respuesta = await fetch(
+          `${API_BASE}/auth/eliminar-cuenta/${usuario.id_usuario}`,
+          { method: "DELETE" }
+        );
 
-      document
-        .getElementById("formPerfil")
-        .addEventListener("submit", guardarPerfilEnAPI);
+        const datos = await respuesta.json().catch(() => ({}));
 
-      document
-        .getElementById("btnCambiarPass")
-        .addEventListener("click", cambiarContrasena);
+        if (!respuesta.ok) {
+          throw new Error(
+            datos.mensaje || "No se pudo eliminar la cuenta."
+          );
+        }
 
-      // Recalcular cada vez que cambia un campo
-      document
-        .querySelectorAll("#formPerfil input, #formPerfil select, #campoCiPaciente")
-        .forEach(el => el.addEventListener("input", actualizarEstadoPerfil));
-    });
-  </script>
+        alert("Tu cuenta se eliminó correctamente.");
+        logout();
+      } catch (error) {
+        console.error(error);
+        alert(error.message || "Error al eliminar la cuenta.");
+      }
+    }
+
+    // ================== INICIALIZAR EVENTOS ==================
+    await cargarPerfilDesdeAPI();
+    actualizarEstadoPerfil();
+    bloquearNavegacionSiIncompleto();
+
+    const formularioPerfil = document.getElementById("formPerfil");
+    if (formularioPerfil) {
+      formularioPerfil.addEventListener("submit", guardarPerfilEnAPI);
+      formularioPerfil
+        .querySelectorAll("input, select")
+        .forEach((elemento) => {
+          elemento.addEventListener("input", actualizarEstadoPerfil);
+          elemento.addEventListener("change", actualizarEstadoPerfil);
+        });
+    }
+
+    const botonCambiarPass = document.getElementById("btnCambiarPass");
+    if (botonCambiarPass) {
+      botonCambiarPass.addEventListener("click", cambiarContrasena);
+    }
+
+    const botonEliminarCuenta = document.getElementById("botonEliminarCuenta");
+    if (botonEliminarCuenta) {
+      botonEliminarCuenta.addEventListener("click", eliminarCuenta);
+    }
+  });
+</script>
+
+
 </body>
 </html>

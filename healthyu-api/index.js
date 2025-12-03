@@ -5,25 +5,24 @@ const cors = require("cors");
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
 // Rutas
-const authRoutes = require("./routes/auth");
-const blogRoutes = require("./routes/blog");
+const rutasAuth = require("./routes/auth");
+const rutasBlog = require("./routes/blog");
+const rutasPacientes = require("./routes/pacientes");
 
-app.use("/api/auth", authRoutes);
-app.use("/api/blog", blogRoutes);
+app.use("/api/auth", rutasAuth);
+app.use("/api/blog", rutasBlog);
+app.use("/api/pacientes", rutasPacientes);
 
-// Ruta básica
 app.get("/", (req, res) => {
-  res.json({ mensaje: "API HealthyU funcionando correctamente 🚀" });
+  res.json({ mensaje: "API HealthyU funcionando correctamente" });
 });
 
-// Puerto de escucha
-const PORT = process.env.PORT || 4000;
+const PUERTO = process.env.PORT || 4000;
 
-app.listen(PORT, () => {
-  console.log(`✅ API HealthyU escuchando en el puerto ${PORT}`);
+app.listen(PUERTO, () => {
+  console.log(`API HealthyU escuchando en el puerto ${PUERTO}`);
 });

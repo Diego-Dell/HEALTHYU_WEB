@@ -1,0 +1,336 @@
+/* ================= PALETA BASE HEALTHY U ================= */
+:root {
+  --hu-primario: #002454;
+  --hu-secundario: #624695;
+  --hu-acento: #8873f0;
+
+  /* tema claro por defecto */
+  --bg-body: #f7faff;
+  --bg-card: #ffffff;
+  --bg-suave: #dfeeff;
+  --texto-principal: #002454;
+  --texto-suave: #6b7280;
+  --borde-suave: #e5e7eb;
+  --degrade-hero: radial-gradient(
+    circle at top left,
+    #8873f0 0,
+    #624695 35%,
+    #002454 80%
+  );
+}
+
+/* tema oscuro */
+body.modo-oscuro {
+  --bg-body: #020617;
+  --bg-card: #020617;
+  --bg-suave: #0f172a;
+  --texto-principal: #e5e7eb;
+  --texto-suave: #9ca3af;
+  --borde-suave: #1f2937;
+  --degrade-hero: radial-gradient(
+    circle at top left,
+    #4b5563 0,
+    #111827 35%,
+    #020617 80%
+  );
+}
+
+/* ================= BASE / MOBILE FIRST ================= */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
+    sans-serif;
+  background-color: var(--bg-body);
+  color: var(--texto-principal);
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.texto-pequenio,
+.text-small {
+  font-size: 0.85rem;
+}
+
+/* ================= NAVBAR ================= */
+.barra-navegacion,
+.navbar {
+  box-shadow: 0 2px 8px rgba(0, 36, 84, 0.16);
+}
+
+.navbar .navbar-brand img {
+  max-height: 36px;
+}
+
+.navbar .navbar-brand {
+  font-weight: 600;
+}
+
+.menu-principal .nav-link {
+  font-weight: 500;
+}
+
+.menu-principal .nav-link.active {
+  border-bottom: 2px solid var(--hu-acento);
+}
+
+/* separación visual de la zona derecha del nav */
+.zona-derecha-nav {
+  border-left: 1px solid var(--borde-suave);
+}
+
+/* botones del nav */
+.boton-pedido {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.boton-acceder,
+#btnCuentaNav {
+  min-width: 90px;
+}
+
+.boton-tema {
+  border-radius: 999px;
+}
+
+/* ================= HERO ================= */
+.hero {
+  background: var(--degrade-hero);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  right: -80px;
+  top: 20%;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.25);
+}
+
+.hero h1 {
+  font-weight: 800;
+}
+
+.hero .lead {
+  color: #e5e7eb;
+}
+
+/* ================= TARJETAS ================= */
+.hu-card {
+  border-radius: 1.1rem;
+  border: 1px solid var(--borde-suave);
+  background-color: var(--bg-card);
+  box-shadow: 0 4px 12px rgba(0, 36, 84, 0.06);
+  transition: transform 0.12s ease-in-out, box-shadow 0.12s ease-in-out;
+}
+
+.hu-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 36, 84, 0.18);
+}
+
+.hu-hover {
+  transition: transform 0.12s ease-in-out, box-shadow 0.12s ease-in-out;
+}
+
+.hu-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 36, 84, 0.18);
+}
+
+/* ================= BOTONES ================= */
+.btn-hu-accent {
+  background-color: var(--hu-acento);
+  border-color: var(--hu-acento);
+  color: #fff;
+}
+
+.btn-hu-accent:hover {
+  background-color: var(--hu-secundario);
+  border-color: var(--hu-secundario);
+  color: #fff;
+}
+
+/* ================= SECCIONES / TEXTOS ================= */
+.bg-hu-soft,
+.bg-hu-suave {
+  background-color: var(--bg-suave);
+}
+
+.section-title {
+  font-weight: 800;
+  color: var(--hu-primario);
+}
+
+.seccion-manual,
+.seccion-contacto {
+  min-height: 60vh;
+}
+
+.bloque-manual {
+  border-bottom: 1px dashed var(--borde-suave);
+  padding-bottom: 1.25rem;
+}
+
+.bloque-manual:last-of-type {
+  border-bottom: none;
+}
+
+.imagen-manual {
+  margin-top: 0.75rem;
+}
+
+/* ================= FOOTER ================= */
+.footer,
+.pie-pagina {
+  background-color: var(--bg-card);
+  border-top: 1px solid var(--borde-suave);
+  color: var(--texto-suave);
+}
+
+/* ================= BLOG ================= */
+#blogSearch {
+  border-radius: 2rem;
+}
+
+.texto-post-blog {
+  white-space: pre-wrap;
+}
+
+/* ================= PERFIL / EQUIPO ================= */
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+.team-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: none !important;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+}
+
+/* ================= FORMULARIOS ================= */
+.form-control,
+.form-select {
+  border-radius: 0.7rem;
+}
+
+/* ================= TABLAS / PEDIDO ================= */
+.table {
+  font-size: 0.95rem;
+}
+
+.table th,
+.table td {
+  vertical-align: middle;
+}
+
+/* ================= MANUAL (ÍNDICE LATERAL) ================= */
+/* En móviles el índice no se queda sticky para que no rompa el flujo */
+@media (max-width: 991.98px) {
+  .list-group.sticky-top {
+    position: static !important;
+    top: auto !important;
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* ================= BREAKPOINTS ================= */
+@media (max-width: 767.98px) {
+  .hero {
+    text-align: center;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+
+  .hero::after {
+    opacity: 0.18;
+    right: -100px;
+    top: 10%;
+    width: 220px;
+    height: 220px;
+  }
+
+  .hero .btn {
+    width: 100%;
+    margin-bottom: 0.75rem;
+  }
+
+  .hero .btn:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-title {
+    text-align: center;
+  }
+}
+
+@media (min-width: 576px) {
+  .hero h1 {
+    font-size: 2.2rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .hero h1 {
+    font-size: 2.6rem;
+  }
+
+  .hero .lead {
+    font-size: 1.1rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .hero {
+    min-height: 420px;
+    display: flex;
+    align-items: center;
+  }
+
+  .hero::after {
+    right: -60px;
+    width: 280px;
+    height: 280px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .hero h1 {
+    font-size: 3rem;
+  }
+
+  .hero .lead {
+    font-size: 1.15rem;
+  }
+}
