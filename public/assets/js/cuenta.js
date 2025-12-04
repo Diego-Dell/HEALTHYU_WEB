@@ -1,348 +1,342 @@
-// Lógica específica de la página "Mi cuenta"
+// public/assets/js/cuenta.js
 
-document.addEventListener("DOMContentLoaded", async () => {
-  if (typeof iniciarTema === "function") iniciarTema();
-  if (typeof actualizarNavAuth === "function") actualizarNavAuth();
+// Depende de script.js (API_BASE, obtenerUsuario, logout, etc.)
 
-  const usuario = typeof obtenerUsuario === "function" ? obtenerUsuario() : null;
+function $(id) {
+  return document.getElementById(id);
+}
 
-  if (!usuario) {
+function setTexto(id, valor) {
+  const el = $(id);
+  if (el) el.textContent = valor ?? "";
+}
+
+// guardamos la foto actual en base64 (sin el prefijo data:)
+let fotoActualBase64 = null;
+
+// ================== CARGA INICIAL ==================
+async function cargarDatosCuenta(usuario) {
+  const msgPerfil = $("mensajePerfil");
+  if (msgPerfil) {
+    msgPerfil.className = "text-muted text-small";
+    msgPerfil.textContent = "Cargando datos...";
+  }
+
+  try {
+    const resp = await fetch(
+      `${API_BASE}/pacientes/datos/${encodeURIComponent(
+        usuario.nombre_usuario
+      )}`
+    );
+
+    if (!resp.ok) {
+      if (msgPerfil) {
+        msgPerfil.className = "text-danger text-small";
+        msgPerfil.textContent =
+          "No se pudieron cargar los datos del paciente.";
+      }
+      return;
+    }
+
+    const data = await resp.json();
+    const u = data.usuario || {};
+    const p = data.paciente || {};
+
+    // ==== Datos de acceso ====
+    if ($("campoNombreUsuario"))
+      $("campoNombreUsuario").value = u.nombre_usuario || "";
+
+    if ($("campoCiPaciente"))
+      $("campoCiPaciente").value =
+        p.ci_paciente != null ? String(p.ci_paciente) : "";
+
+    // ==== Datos personales ====
+    if ($("campoNombreCompleto"))
+      $("campoNombreCompleto").value = p.nombre_completo || "";
+
+    if ($("campoCorreo")) $("campoCorreo").value = p.correo || "";
+
+    if ($("campoCelular")) $("campoCelular").value = p.celular || "";
+
+    if ($("campoDireccion")) $("campoDireccion").value = p.direccion || "";
+
+    // Fecha nacimiento -> id correcto: campoFechaNac
+    if ($("campoFechaNac") && p.fecha_nacimiento) {
+      const fecha = new Date(p.fecha_nacimiento);
+      if (!isNaN(fecha.getTime())) {
+        const yyyy = fecha.getFullYear();
+        const mm = String(fecha.getMonth() + 1).padStart(2, "0");
+        const dd = String(fecha.getDate()).padStart(2, "0");
+        $("campoFechaNac").value = `${yyyy}-${mm}-${dd}`;
+      }
+    }
+
+    // Sexo (puede venir como bit 0/1 o boolean)
+    if ($("campoSexo")) {
+      if (p.sexo === 0 || p.sexo === 1) {
+        $("campoSexo").value = String(p.sexo);
+      } else if (typeof p.sexo === "boolean") {
+        $("campoSexo").value = p.sexo ? "1" : "0";
+      } else {
+        $("campoSexo").value = "";
+      }
+    }
+
+    // Tipo de sangre & centro
+    if ($("campoTipoSangre") && p.id_tipo_sangre != null) {
+      $("campoTipoSangre").value = String(p.id_tipo_sangre);
+    }
+    if ($("campoCentro") && p.id_centro != null) {
+      $("campoCentro").value = String(p.id_centro);
+    }
+
+    // ==== Avatar y textos ====
+    const avatar = $("avatarPreview");
+    if (avatar) {
+      if (p.foto_perfil) {
+        // viene en base64 desde el backend
+        fotoActualBase64 = p.foto_perfil;
+        avatar.src = `data:image/jpeg;base64,${p.foto_perfil}`;
+      } else {
+        avatar.src = "../IMAGENES/avatar_default.png";
+        fotoActualBase64 = null;
+      }
+    }
+
+    setTexto("textoNombreCuenta", p.nombre_completo || u.nombre_usuario || "Tu nombre");
+    setTexto("textoCorreoCuenta", p.correo || "tu@correo.com");
+
+    if (msgPerfil) {
+      msgPerfil.className = "text-success text-small";
+      msgPerfil.textContent = "Datos cargados correctamente.";
+    }
+  } catch (err) {
+    console.error("Error en cargarDatosCuenta:", err);
+    if (msgPerfil) {
+      msgPerfil.className = "text-danger text-small";
+      msgPerfil.textContent =
+        "Error en el servidor al obtener los datos del paciente.";
+    }
+  }
+}
+
+// ================== GUARDAR DATOS PACIENTE ==================
+async function guardarDatosPaciente(usuario) {
+  const msgPerfil = $("mensajePerfil");
+  if (msgPerfil) {
+    msgPerfil.className = "text-muted text-small";
+    msgPerfil.textContent = "Guardando datos...";
+  }
+
+  const ciPaciente = $("campoCiPaciente")?.value.trim() || "";
+  const nombreCompleto = $("campoNombreCompleto")?.value.trim() || "";
+  const correo = $("campoCorreo")?.value.trim() || "";
+  const celular = $("campoCelular")?.value.trim() || "";
+  const fechaNacimiento = $("campoFechaNac")?.value || null;
+  const direccion = $("campoDireccion")?.value.trim() || "";
+  const sexoValor = $("campoSexo")?.value ?? "";
+  const tipoSangre = $("campoTipoSangre")?.value || null;
+  const idCentro = $("campoCentro")?.value || "";
+
+  // Validar obligatorios
+  if (
+    !ciPaciente ||
+    !nombreCompleto ||
+    !correo ||
+    !celular ||
+    !direccion ||
+    sexoValor === "" ||
+    !fechaNacimiento
+  ) {
+    if (msgPerfil) {
+      msgPerfil.className = "text-danger text-small";
+      msgPerfil.textContent = "Faltan datos obligatorios del paciente.";
+    }
+    return;
+  }
+
+  const body = {
+    ci_paciente: Number(ciPaciente),
+    nombre_completo: nombreCompleto,
+    correo,
+    celular,
+    direccion,
+    fecha_nacimiento: fechaNacimiento, // yyyy-MM-dd
+    sexo: parseInt(sexoValor, 10), // 0 ó 1
+    id_tipo_sangre: tipoSangre ? Number(tipoSangre) : null,
+    id_centro: idCentro ? Number(idCentro) : 1,
+    foto_perfil: fotoActualBase64 || null,
+  };
+
+  try {
+    const resp = await fetch(
+      `${API_BASE}/pacientes/por-usuario/${encodeURIComponent(
+        usuario.nombre_usuario
+      )}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }
+    );
+
+    const data = await resp.json().catch(() => ({}));
+
+    if (!resp.ok) {
+      if (msgPerfil) {
+        msgPerfil.className = "text-danger text-small";
+        msgPerfil.textContent =
+          data.mensaje || "Error guardando datos del paciente.";
+      }
+      return;
+    }
+
+    if (msgPerfil) {
+      msgPerfil.className = "text-success text-small";
+      msgPerfil.textContent =
+        data.mensaje || "Datos de paciente guardados correctamente.";
+    }
+  } catch (err) {
+    console.error("Error en guardarDatosPaciente:", err);
+    if (msgPerfil) {
+      msgPerfil.className = "text-danger text-small";
+      msgPerfil.textContent = "Error en el servidor al guardar los datos.";
+    }
+  }
+}
+
+// ================== CAMBIAR CONTRASEÑA ==================
+async function cambiarPassword(usuario) {
+  const passActual = $("campoPassActual")?.value || "";
+  const passNueva = $("campoPassNueva")?.value || "";
+  const passNueva2 = $("campoPassRepetir")?.value || "";
+  const msgPass = $("mensajePass");
+
+  if (!passActual || !passNueva || !passNueva2) {
+    if (msgPass) {
+      msgPass.className = "text-danger text-small";
+      msgPass.textContent = "Completa todos los campos de contraseña.";
+    }
+    return;
+  }
+
+  if (passNueva.length < 6) {
+    if (msgPass) {
+      msgPass.className = "text-danger text-small";
+      msgPass.textContent = "La nueva contraseña debe tener al menos 6 caracteres.";
+    }
+    return;
+  }
+
+  if (passNueva !== passNueva2) {
+    if (msgPass) {
+      msgPass.className = "text-danger text-small";
+      msgPass.textContent = "La nueva contraseña no coincide.";
+    }
+    return;
+  }
+
+  try {
+    const resp = await fetch(`${API_BASE}/pacientes/password`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nombre_usuario: usuario.nombre_usuario,
+        actual: passActual,
+        nueva: passNueva,
+      }),
+    });
+
+    const data = await resp.json().catch(() => ({}));
+
+    if (!resp.ok) {
+      if (msgPass) {
+        msgPass.className = "text-danger text-small";
+        msgPass.textContent =
+          data.mensaje || "No se pudo actualizar la contraseña.";
+      }
+      return;
+    }
+
+    if (msgPass) {
+      msgPass.className = "text-success text-small";
+      msgPass.textContent = data.mensaje || "Contraseña actualizada.";
+    }
+
+    // Limpiar campos
+    $("campoPassActual").value = "";
+    $("campoPassNueva").value = "";
+    $("campoPassRepetir").value = "";
+  } catch (err) {
+    console.error("Error en cambiarPassword:", err);
+    if (msgPass) {
+      msgPass.className = "text-danger text-small";
+      msgPass.textContent = "Error en el servidor al cambiar la contraseña.";
+    }
+  }
+}
+
+// ================== FOTO DE PERFIL (FRONT) ==================
+function inicializarFoto() {
+  const inputFoto = $("campoFotoPerfil");
+  if (!inputFoto) return;
+
+  inputFoto.addEventListener("change", (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result; // data:image/...
+      if (typeof result === "string") {
+        const partes = result.split(",");
+        fotoActualBase64 = partes.length > 1 ? partes[1] : partes[0];
+
+        const avatar = $("avatarPreview");
+        if (avatar) {
+          avatar.src = result; // vista previa inmediata
+        }
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ================== INICIALIZAR EVENTOS ==================
+function inicializarEventosCuenta(usuario) {
+  const formPerfil = $("formPerfil");
+  if (formPerfil) {
+    formPerfil.addEventListener("submit", (e) => {
+      e.preventDefault();
+      guardarDatosPaciente(usuario);
+    });
+  }
+
+  const btnCambiarPass = $("btnCambiarPass");
+  if (btnCambiarPass) {
+    btnCambiarPass.addEventListener("click", (e) => {
+      e.preventDefault();
+      cambiarPassword(usuario);
+    });
+  }
+
+  inicializarFoto();
+}
+
+// ================== ARRANQUE ==================
+document.addEventListener("DOMContentLoaded", () => {
+  const usuario = obtenerUsuario(); // viene de script.js
+
+  if (!usuario || !usuario.nombre_usuario) {
     alert("Debes iniciar sesión para acceder a Mi Cuenta.");
     window.location.href = "index.html";
     return;
   }
 
-  const campoNombreUsuario = document.getElementById("campoNombreUsuario");
-  const campoEstado = document.getElementById("campoEstado");
-
-  if (campoNombreUsuario) {
-    campoNombreUsuario.value = usuario.nombre_usuario || "";
-  }
-  if (campoEstado) {
-    campoEstado.value =
-      usuario.estado === 0 || usuario.estado === false ? "Inactivo" : "Activo";
+  if ($("campoNombreUsuario")) {
+    $("campoNombreUsuario").value = usuario.nombre_usuario;
   }
 
-  let perfilCompleto = false;
-
-  function actualizarEstadoPerfil() {
-    const idsObligatorios = [
-      "campoNombreCompleto",
-      "campoCorreo",
-      "campoCelular",
-      "campoFechaNac",
-      "campoDireccion",
-      "campoSexo",
-      "campoTipoSangre",
-      "campoCiPaciente"
-      // No hay edad y el centro NO es obligatorio
-    ];
-
-    perfilCompleto = idsObligatorios.every((id) => {
-      const elemento = document.getElementById(id);
-      return elemento && String(elemento.value).trim() !== "";
-    });
-
-    const aviso = document.getElementById("avisoPerfil");
-    if (!aviso) return;
-
-    if (perfilCompleto) {
-      aviso.classList.add("d-none");
-    } else {
-      aviso.classList.remove("d-none");
-    }
-  }
-
-  function bloquearNavegacionSiIncompleto() {
-    const enlaces = document.querySelectorAll("a.nav-link, a[href$='.html']");
-
-    enlaces.forEach((enlace) => {
-      enlace.addEventListener("click", (evento) => {
-        const href = enlace.getAttribute("href") || "";
-        const esCuenta =
-          href === "#" || href === "" || href.includes("cuenta.html");
-
-        if (!perfilCompleto && !esCuenta) {
-          evento.preventDefault();
-          alert(
-            "Completa tus datos básicos de paciente en Mi Cuenta antes de continuar."
-          );
-        }
-      });
-    });
-  }
-
-  // ================== CARGAR PERFIL DESDE LA API ==================
-  async function cargarPerfilDesdeAPI() {
-    const mensajePerfil = document.getElementById("mensajePerfil");
-
-    try {
-      const respuesta = await fetch(
-        `${API_BASE}/pacientes/por-usuario/${usuario.id_usuario}`
-      );
-
-      if (respuesta.status === 404) {
-        if (mensajePerfil) {
-          mensajePerfil.textContent =
-            "Aún no tienes datos de paciente, completa el formulario.";
-          mensajePerfil.className = "text-muted text-small";
-        }
-        actualizarEstadoPerfil();
-        return;
-      }
-
-      if (!respuesta.ok) {
-        throw new Error("Error al cargar el perfil");
-      }
-
-      const datos = await respuesta.json();
-      const paciente = datos.paciente || datos;
-
-      document.getElementById("campoCiPaciente").value =
-        paciente.ci_paciente ?? "";
-      document.getElementById("campoNombreCompleto").value =
-        paciente.nombre_completo ?? "";
-      document.getElementById("campoCorreo").value = paciente.correo ?? "";
-      document.getElementById("campoCelular").value = paciente.celular ?? "";
-      document.getElementById("campoDireccion").value =
-        paciente.direccion ?? "";
-
-      if (paciente.fecha_nacimiento) {
-        document.getElementById("campoFechaNac").value = String(
-          paciente.fecha_nacimiento
-        ).substring(0, 10);
-      }
-
-      const campoSexo = document.getElementById("campoSexo");
-      if (campoSexo) {
-        if (paciente.sexo === 0 || paciente.sexo === 1) {
-          campoSexo.value = String(paciente.sexo);
-        } else {
-          campoSexo.value = "";
-        }
-      }
-
-      const campoTipoSangre = document.getElementById("campoTipoSangre");
-      if (campoTipoSangre && paciente.id_tipo_sangre) {
-        campoTipoSangre.value = paciente.id_tipo_sangre;
-      }
-
-      const campoCentro = document.getElementById("campoCentro");
-      if (campoCentro && paciente.id_centro) {
-        campoCentro.value = paciente.id_centro;
-      }
-
-      if (mensajePerfil) {
-        mensajePerfil.textContent =
-          "Datos cargados desde la base de datos.";
-        mensajePerfil.className = "text-success text-small";
-      }
-
-      actualizarEstadoPerfil();
-    } catch (error) {
-      console.error(error);
-      if (mensajePerfil) {
-        mensajePerfil.textContent =
-          "No se pudieron cargar los datos del paciente.";
-        mensajePerfil.className = "text-danger text-small";
-      }
-    }
-  }
-
-  // ================== GUARDAR PERFIL EN LA API ==================
-  async function guardarPerfilEnAPI(evento) {
-    evento.preventDefault();
-
-    actualizarEstadoPerfil();
-    if (!perfilCompleto) {
-      alert("Completa todos los campos obligatorios (*) antes de guardar.");
-      return;
-    }
-
-    const mensajePerfil = document.getElementById("mensajePerfil");
-
-    const datosEnviar = {
-      ci_paciente: Number(
-        document.getElementById("campoCiPaciente").value
-      ),
-      nombre_completo: document
-        .getElementById("campoNombreCompleto")
-        .value.trim(),
-      correo: document.getElementById("campoCorreo").value.trim(),
-      celular: document.getElementById("campoCelular").value.trim(),
-      fecha_nacimiento: document.getElementById("campoFechaNac").value,
-      direccion: document.getElementById("campoDireccion").value.trim(),
-      sexo: Number(document.getElementById("campoSexo").value),
-      id_tipo_sangre: Number(
-        document.getElementById("campoTipoSangre").value
-      )
-      // Edad NO se envía; la puedes calcular en backend si quieres
-    };
-
-    const campoCentro = document.getElementById("campoCentro");
-    if (campoCentro && campoCentro.value.trim() !== "") {
-      datosEnviar.id_centro = Number(campoCentro.value);
-    }
-
-    try {
-      const respuesta = await fetch(
-        `${API_BASE}/pacientes/por-usuario/${usuario.id_usuario}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(datosEnviar)
-        }
-      );
-
-      const datos = await respuesta.json().catch(() => ({}));
-
-      if (!respuesta.ok) {
-        throw new Error(datos.mensaje || "Error al guardar los datos");
-      }
-
-      if (mensajePerfil) {
-        mensajePerfil.textContent =
-          "Datos de paciente guardados correctamente en la base de datos.";
-        mensajePerfil.className = "text-success text-small";
-      }
-
-      actualizarEstadoPerfil();
-    } catch (error) {
-      console.error(error);
-      if (mensajePerfil) {
-        mensajePerfil.textContent =
-          error.message || "No se pudieron guardar los datos.";
-        mensajePerfil.className = "text-danger text-small";
-      }
-    }
-  }
-
-  // ================== CAMBIO DE CONTRASEÑA ==================
-  async function cambiarContrasena() {
-    const contrasenaActual = document
-      .getElementById("campoPassActual")
-      .value.trim();
-    const contrasenaNueva = document
-      .getElementById("campoPassNueva")
-      .value.trim();
-    const contrasenaRepetir = document
-      .getElementById("campoPassRepetir")
-      .value.trim();
-
-    const mensajePass = document.getElementById("mensajePass");
-
-    if (!contrasenaActual || !contrasenaNueva || !contrasenaRepetir) {
-      if (mensajePass) {
-        mensajePass.textContent = "Completa todos los campos.";
-        mensajePass.className = "text-danger text-small";
-      }
-      return;
-    }
-
-    if (contrasenaNueva.length < 6) {
-      if (mensajePass) {
-        mensajePass.textContent =
-          "La nueva contraseña debe tener al menos 6 caracteres.";
-        mensajePass.className = "text-danger text-small";
-      }
-      return;
-    }
-
-    if (contrasenaNueva !== contrasenaRepetir) {
-      if (mensajePass) {
-        mensajePass.textContent = "Las contraseñas nuevas no coinciden.";
-        mensajePass.className = "text-danger text-small";
-      }
-      return;
-    }
-
-    try {
-      const respuesta = await fetch(`${API_BASE}/auth/cambiar-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id_usuario: usuario.id_usuario,
-          contrasenaActual,
-          contrasenaNueva
-        })
-      });
-
-      const datos = await respuesta.json().catch(() => ({}));
-
-      if (!respuesta.ok) {
-        throw new Error(
-          datos.mensaje || "No se pudo actualizar la contraseña"
-        );
-      }
-
-      if (mensajePass) {
-        mensajePass.textContent = "Contraseña actualizada correctamente.";
-        mensajePass.className = "text-success text-small";
-      }
-
-      document.getElementById("campoPassActual").value = "";
-      document.getElementById("campoPassNueva").value = "";
-      document.getElementById("campoPassRepetir").value = "";
-    } catch (error) {
-      console.error(error);
-      if (mensajePass) {
-        mensajePass.textContent =
-          error.message || "Error al actualizar la contraseña.";
-        mensajePass.className = "text-danger text-small";
-      }
-    }
-  }
-
-  // ================== ELIMINAR CUENTA ==================
-  async function eliminarCuenta() {
-    const confirmar = confirm(
-      "Esta acción eliminará tu cuenta y no podrás volver a iniciar sesión con este usuario. ¿Deseas continuar?"
-    );
-    if (!confirmar) return;
-
-    try {
-      const respuesta = await fetch(
-        `${API_BASE}/auth/eliminar-cuenta/${usuario.id_usuario}`,
-        { method: "DELETE" }
-      );
-
-      const datos = await respuesta.json().catch(() => ({}));
-
-      if (!respuesta.ok) {
-        throw new Error(
-          datos.mensaje || "No se pudo eliminar la cuenta."
-        );
-      }
-
-      alert("Tu cuenta se eliminó correctamente.");
-      if (typeof logout === "function") logout();
-    } catch (error) {
-      console.error(error);
-      alert(error.message || "Error al eliminar la cuenta.");
-    }
-  }
-
-  // ================== INICIALIZAR EVENTOS ==================
-  await cargarPerfilDesdeAPI();
-  actualizarEstadoPerfil();
-  bloquearNavegacionSiIncompleto();
-
-  const formularioPerfil = document.getElementById("formPerfil");
-  if (formularioPerfil) {
-    formularioPerfil.addEventListener("submit", guardarPerfilEnAPI);
-    formularioPerfil.querySelectorAll("input, select").forEach((elemento) => {
-      elemento.addEventListener("input", actualizarEstadoPerfil);
-      elemento.addEventListener("change", actualizarEstadoPerfil);
-    });
-  }
-
-  const botonCambiarPass = document.getElementById("btnCambiarPass");
-  if (botonCambiarPass) {
-    botonCambiarPass.addEventListener("click", cambiarContrasena);
-  }
-
-  const botonEliminarCuenta = document.getElementById("botonEliminarCuenta");
-  if (botonEliminarCuenta) {
-    botonEliminarCuenta.addEventListener("click", eliminarCuenta);
-  }
+  inicializarEventosCuenta(usuario);
+  cargarDatosCuenta(usuario);
 });

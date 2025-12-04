@@ -1,5 +1,4 @@
 // manual.js
-// Lógica específica para la página manual.html
 
 document.addEventListener("DOMContentLoaded", () => {
   // Inicializar tema y nav (mismas funciones globales que usas en otras páginas)

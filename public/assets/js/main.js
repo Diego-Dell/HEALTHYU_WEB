@@ -1,7 +1,6 @@
 
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Lógica global de tema, auth, carrito
   if (typeof iniciarTema === "function") iniciarTema();
   if (typeof actualizarNavAuth === "function") actualizarNavAuth();
   if (typeof actualizarCarritoNav === "function") actualizarCarritoNav();

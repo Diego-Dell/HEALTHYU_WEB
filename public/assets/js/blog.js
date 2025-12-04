@@ -1,5 +1,5 @@
-// Usamos la misma base de API que en script.js
-const API_BLOG = `${API_BASE}/blog`; // Ajusta si tus rutas son diferentes
+
+const API_BLOG = `${API_BASE}/blog`; 
 
 let listaPosts = [];
 
@@ -31,7 +31,7 @@ async function cargarPostsDesdeServidor() {
   return listaPosts;
 }
 
-// Sobrescribimos la función mostrarPosts del script.js
+//  la función mostrarPosts del script.js
 async function mostrarPosts(filtroTexto = "") {
   const contenedor = document.getElementById("blogPosts");
   if (!contenedor) return;

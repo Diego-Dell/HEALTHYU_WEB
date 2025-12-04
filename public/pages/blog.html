@@ -10,7 +10,7 @@
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     rel="stylesheet"
   />
-  <!-- Bootstrap Icons -->
+  <!-- Iconos Bootstrap -->
   <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
@@ -19,14 +19,13 @@
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
 <body>
-  <!-- ================= NAVBAR PRINCIPAL (MISMO QUE INDEX) ================= -->
+  <!-- NAVBAR (igual al resto) -->
   <nav
     class="navbar navbar-expand-lg navbar-light barra-navegacion"
-    style="background-color: var(--bg-card); border-bottom: 1px solid var(--border-soft);"
+    style="background-color: var(--bg-card); border-bottom: 1px solid var(--borde-suave);"
   >
     <div class="container">
-
-      <!-- Solo logo -->
+      <!-- Logo -->
       <a class="navbar-brand" href="index.html">
         <img
           src="../IMAGENES/logo_horizontal.png"
@@ -35,7 +34,7 @@
         />
       </a>
 
-      <!-- Botón hamburguesa móvil -->
+      <!-- Botón hamburguesa -->
       <button
         class="navbar-toggler"
         type="button"
@@ -48,47 +47,45 @@
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <!-- Contenido del menú -->
+      <!-- Contenido -->
       <div class="collapse navbar-collapse" id="navbarHealthyU">
-
         <!-- Menú principal -->
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0 menu-principal">
           <li class="nav-item">
-            <a class="nav-link" href="index.html" style="color: var(--text-main);">
+            <a class="nav-link" href="index.html" style="color: var(--texto-principal);">
               <i class="bi bi-house-door me-1"></i>Inicio
             </a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="manual.html" style="color: var(--text-main);">
+            <a class="nav-link" href="manual.html" style="color: var(--texto-principal);">
               <i class="bi bi-book me-1"></i>Manual
             </a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link active" href="blog.html" style="color: var(--text-main);">
+            <a class="nav-link" href="comprar.html" style="color: var(--texto-principal);">
+              <i class="bi bi-cash-coin me-1"></i>Precios
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link active" href="blog.html" style="color: var(--texto-principal);">
               <i class="bi bi-journal-text me-1"></i>Blog
             </a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="contacto.html" style="color: var(--text-main);">
+            <a class="nav-link" href="contacto.html" style="color: var(--texto-principal);">
               <i class="bi bi-envelope me-1"></i>Contacto
-            </a>
-          </li>
-
-          <!-- PRECIOS -->
-          <li class="nav-item">
-            <a class="nav-link" href="comprar.html" style="color: var(--text-main);">
-              <i class="bi bi-tags me-1"></i>Precios
             </a>
           </li>
         </ul>
 
-        <!-- Lado derecho: Pedido + Acceder + Tema -->
+        <!-- Lado derecho -->
         <div
           class="d-flex align-items-center ms-lg-4 mt-3 mt-lg-0 gap-2 border-start ps-lg-4 pt-2 pt-lg-0 zona-derecha-nav"
-          style="border-color: var(--border-soft) !important;"
+          style="border-color: var(--borde-suave) !important;"
         >
           <!-- Botón Pedido -->
           <a href="pedido.html" class="btn btn-dark btn-sm boton-pedido">
@@ -103,7 +100,7 @@
             </span>
           </a>
 
-          <!-- Botón Login / Mi cuenta (lo controla script.js) -->
+          <!-- Este botón se reemplaza por JS si el usuario está logueado -->
           <button
             id="btnLoginNav"
             type="button"
@@ -115,7 +112,7 @@
             Acceder
           </button>
 
-          <!-- Botón cambio de tema -->
+          <!-- Cambio de tema -->
           <button
             id="themeToggle"
             type="button"
@@ -129,72 +126,112 @@
     </div>
   </nav>
 
-  <!-- ================= CABECERA DEL BLOG ================= -->
-  <header class="py-5 border-bottom bg-hu-soft">
+  <!-- CONTENIDO BLOG -->
+  <main class="py-5 bg-hu-soft">
     <div class="container">
-      <h1 class="fw-bold mb-2">Blog Healthy U</h1>
-      <p class="text-muted mb-0">
-        Noticias, guías cortas y notas sobre salud y el uso de Healthy U.
-      </p>
-    </div>
-  </header>
-
-  <!-- ================= CONTENIDO DEL BLOG ================= -->
-  <main class="py-5">
-    <div class="container">
-
-      <!-- Buscador -->
-      <section class="mb-4">
-        <div class="row g-2 align-items-center">
-          <div class="col-md-8">
-            <label for="blogSearch" class="form-label mb-1">Buscar publicaciones</label>
-            <input
-              type="text"
-              id="blogSearch"
-              class="form-control"
-              placeholder="Escribe un título o palabra clave (ej. fiebre, presión arterial, oxígeno)..."
-            />
-          </div>
-          <div class="col-md-4">
-            <p class="text-muted text-small mb-0 mt-2 mt-md-4">
-              El filtro se aplica en tiempo real sobre el título y el contenido.
-            </p>
+      <!-- Cabecera del blog -->
+      <div class="row g-4 align-items-center mb-4">
+        <div class="col-lg-8">
+          <h1 class="section-title mb-2">Blog Healthy U</h1>
+          <p class="text-muted mb-0">
+            Historias, tips y experiencias reales de personas que cuidan su salud.
+            Comparte lo que te funciona y aprende de otros pacientes.
+          </p>
+        </div>
+        <div class="col-lg-4">
+          <div class="hu-card p-3 d-flex align-items-center gap-3">
+            <div
+              class="rounded-circle d-flex align-items-center justify-content-center"
+              style="width: 42px; height: 42px; background-color: var(--bg-suave);"
+            >
+              <i class="bi bi-search fs-5 text-primary"></i>
+            </div>
+            <div class="flex-grow-1">
+              <label for="blogSearch" class="form-label text-small mb-1">
+                Buscar en el blog
+              </label>
+              <input
+                type="search"
+                id="blogSearch"
+                class="form-control form-control-sm"
+                placeholder="Ej: pastillas, presión, alimentación..."
+              />
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      <!-- Zona principal del blog: destacado + lista lateral -->
-      <section>
-        <div class="row g-4" id="blogPosts">
-          <!-- El JS llenará esta sección -->
+      <!-- Formulario para nueva publicación (solo logueados) -->
+      <div class="row g-4 mb-4" id="postFormContainer">
+        <div class="col-12">
+          <div class="hu-card p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+              <div>
+                <h2 class="h5 mb-1">
+                  <i class="bi bi-pencil-square me-1"></i>
+                  Comparte tu experiencia
+                </h2>
+                <p class="text-muted text-small mb-0">
+                  Solo los usuarios con cuenta iniciada pueden publicar. Tu nombre de usuario aparecerá como autor.
+                </p>
+              </div>
+              <span class="badge bg-hu-soft text-primary-emphasis mt-2 mt-md-0">
+                <i class="bi bi-shield-lock me-1"></i> Solo usuarios registrados
+              </span>
+            </div>
+
+            <div class="mb-3">
+              <label for="postTitulo" class="form-label">Título de la publicación</label>
+              <input
+                type="text"
+                id="postTitulo"
+                class="form-control"
+                placeholder="Ej: Cómo organizo mis medicaciones semanales"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="postContenido" class="form-label">Contenido</label>
+              <textarea
+                id="postContenido"
+                class="form-control"
+                rows="4"
+                placeholder="Cuenta tu experiencia, consejos o dudas relacionadas con tu salud..."
+              ></textarea>
+            </div>
+
+            <div class="d-flex justify-content-end">
+              <button type="button" class="btn btn-hu-accent" onclick="crearPost()">
+                <i class="bi bi-send-fill me-1"></i>
+                Publicar
+              </button>
+            </div>
+
+            <div class="text-small text-muted mt-2">
+              <i class="bi bi-info-circle me-1"></i>
+              Si no has iniciado sesión, no verás este formulario.
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
 
+      <!-- Listado de posts -->
+      <div class="row g-4" id="blogPosts">
+        <!-- blog.js renderiza aquí -->
+      </div>
     </div>
   </main>
 
-  <!-- ================= MODAL LECTOR DE POST ================= -->
-  <div
-    class="modal fade"
-    id="modalPostBlog"
-    tabindex="-1"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-      <div class="modal-content hu-card">
-        <div class="modal-header border-0 pb-0">
-          <h5 class="modal-title" id="modalTituloPost"></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-        <div class="modal-body pt-2">
-          <p id="modalMetaPost" class="text-muted text-small mb-3"></p>
-          <div id="modalContenidoPost" class="fs-5 lh-lg"></div>
-        </div>
-      </div>
+  <!-- FOOTER -->
+  <footer class="footer py-3">
+    <div class="container text-center">
+      <small class="text-muted">
+        © 2025 Healthy U · The Big Bang Coders
+      </small>
     </div>
-  </div>
+  </footer>
 
-  <!-- ================= MODAL LOGIN / REGISTRO (MISMO QUE INDEX) ================= -->
+  <!-- MODAL LOGIN / REGISTRO (mismo que en index/cuenta si lo tienes) -->
   <div
     class="modal fade"
     id="authModal"
@@ -216,133 +253,46 @@
           ></button>
         </div>
         <div class="modal-body pt-2">
-          <!-- Tabs login / registro -->
-          <ul class="nav nav-pills mb-3" id="authTab" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button
-                class="nav-link active"
-                id="login-tab"
-                data-bs-toggle="pill"
-                data-bs-target="#login-pane"
-                type="button"
-                role="tab"
-                aria-controls="login-pane"
-                aria-selected="true"
-              >
-                Iniciar sesión
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button
-                class="nav-link"
-                id="register-tab"
-                data-bs-toggle="pill"
-                data-bs-target="#register-pane"
-                type="button"
-                role="tab"
-                aria-controls="register-pane"
-                aria-selected="false"
-              >
-                Registrarse
-              </button>
-            </li>
-          </ul>
-
-          <div class="tab-content" id="authTabContent">
-            <!-- LOGIN -->
-            <div class="tab-pane fade show active" id="login-pane" role="tabpanel" tabindex="0">
-              <form onsubmit="event.preventDefault(); login();">
-                <div class="mb-3">
-                  <label for="loginUser" class="form-label">Nombre de usuario</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="loginUser"
-                    placeholder="tu_usuario"
-                    required
-                  />
-                </div>
-                <div class="mb-3">
-                  <label for="loginPass" class="form-label">Contraseña</label>
-                  <input
-                    type="password"
-                    class="form-control"
-                    id="loginPass"
-                    placeholder="••••••••"
-                    required
-                  />
-                </div>
-                <div id="loginMsg" class="text-danger text-small mb-2"></div>
-                <button type="submit" class="btn btn-hu-accent w-100">
-                  <i class="bi bi-box-arrow-in-right me-1"></i>
-                  Entrar
-                </button>
-              </form>
-            </div>
-
-            <!-- REGISTRO -->
-            <div class="tab-pane fade" id="register-pane" role="tabpanel" tabindex="0">
-              <form onsubmit="event.preventDefault(); register();">
-                <div class="mb-3">
-                  <label for="registerUser" class="form-label">Nombre de usuario</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="registerUser"
-                    placeholder="tu_usuario"
-                    required
-                  />
-                </div>
-                <div class="mb-3">
-                  <label for="registerPass" class="form-label">Contraseña</label>
-                  <input
-                    type="password"
-                    class="form-control"
-                    id="registerPass"
-                    placeholder="Mínimo 6 caracteres"
-                    required
-                  />
-                </div>
-                <div class="mb-3">
-                  <label for="registerPass2" class="form-label">Repetir contraseña</label>
-                  <input
-                    type="password"
-                    class="form-control"
-                    id="registerPass2"
-                    placeholder="Repite tu contraseña"
-                    required
-                  />
-                </div>
-                <div id="registerMsg" class="text-danger text-small mb-2"></div>
-                <button type="submit" class="btn btn-hu-accent w-100">
-                  <i class="bi bi-person-plus me-1"></i>
-                  Crear cuenta
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer border-0 pt-0 d-flex justify-content-between">
-          <small class="text-muted">
-            Tus datos de acceso se guardan en el servidor Healthy U.
-          </small>
+          <p class="text-muted mb-0">
+            Inicia sesión desde la página de inicio para poder crear tus publicaciones
+            en el blog.
+          </p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ================= FOOTER ================= -->
-  <footer class="footer py-3 pie-pagina">
-    <div class="container text-center">
-      <small class="text-muted">
-        © 2025 Healthy U · The Big Bang Coders
-      </small>
+  <!-- MODAL VER POST -->
+  <div
+    class="modal fade"
+    id="modalPostBlog"
+    tabindex="-1"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content hu-card p-0">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title" id="modalTituloPost">Título del post</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Cerrar"
+          ></button>
+        </div>
+        <div class="modal-body pt-2">
+          <p class="text-muted text-small mb-3" id="modalMetaPost">
+            Por Autor · Fecha
+          </p>
+          <div id="modalContenidoPost" class="contenido-post-blog"></div>
+        </div>
+      </div>
     </div>
-  </footer>
+  </div>
 
-  <!-- JS Bootstrap + JS principal -->
+  <!-- JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="../js/script.js"></script>
-  <script src="../js/blog.js"></script>
+  <script src="../assets/js/script.js"></script>
+  <script src="../assets/js/blog.js"></script>
 </body>
 </html>

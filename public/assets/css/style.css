@@ -334,3 +334,73 @@ img {
     font-size: 1.15rem;
   }
 }
+
+
+/* ================= MI CUENTA ================= */
+
+.bg-hu-soft {
+  background-color: var(--bg-suave);
+}
+
+.perfil-card {
+  background: linear-gradient(145deg, #002454, #4f6ad8, #9c6df0);
+  color: #fdfdfd;
+  position: relative;
+  overflow: hidden;
+}
+
+.perfil-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at -10% 0%, rgba(255,255,255,0.15) 0, transparent 50%),
+    radial-gradient(circle at 120% 120%, rgba(255,255,255,0.12) 0, transparent 55%);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.perfil-card-content {
+  position: relative;
+  z-index: 1;
+}
+
+.avatar-xl {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid rgba(255,255,255,0.9);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+  background-color: #e9ecef;
+}
+
+
+.chip-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .15rem .6rem;
+  border-radius: 999px;
+  font-size: .75rem;
+  background: rgba(16,185,129,.15);
+  color: #bbf7d0;
+  border: 1px solid rgba(16,185,129,.45);
+}
+
+.btnCerrarSesion {
+  border-radius: 999px;
+  background: linear-gradient(135deg,#f97373,#ef4444);
+  border: none;
+  color: #fff;
+  box-shadow: 0 10px 25px rgba(239,68,68,.45);
+}
+
+.btnCerrarSesion:hover {
+  background: linear-gradient(135deg,#ef4444,#b91c1c);
+  color: #fff;
+}
+
+.btnCambiarPass {
+  border-radius: 999px;
+}

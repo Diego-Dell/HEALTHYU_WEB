@@ -34,8 +34,7 @@ function inicializarBotonesPlanes() {
       const nombre = boton.getAttribute("data-name") || "Plan";
       const precio = boton.getAttribute("data-price") || "0";
 
-      // Aquí podrías llamar a una API para guardar el pedido en BD.
-      // De momento solo actualizamos el contador en la interfaz.
+
       contadorCarrito += 1;
       actualizarBadgeCarrito();
 
@@ -48,7 +47,7 @@ function inicializarBotonesPlanes() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Funciones globales de tu script principal
+  // Funciones globales script principal
   if (typeof iniciarTema === "function") iniciarTema();
   if (typeof actualizarNavAuth === "function") actualizarNavAuth();
 

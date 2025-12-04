@@ -14,7 +14,7 @@ function inicializarFormularioContacto() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Misma lógica de nav / tema que usas en el resto de páginas
+
   if (typeof iniciarTema === "function") iniciarTema();
   if (typeof actualizarNavAuth === "function") actualizarNavAuth();
 
