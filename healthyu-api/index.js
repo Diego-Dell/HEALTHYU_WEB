@@ -1,28 +1,32 @@
-// index.js - API HealthyU
-
+// healthyu-api/index.js
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
+const PORT = 4000;
 
+// Middlewares básicos
 app.use(cors());
 app.use(express.json());
 
-// Rutas
-const rutasAuth = require("./routes/auth");
-const rutasBlog = require("./routes/blog");
-const rutasPacientes = require("./routes/pacientes");
+// Servir tu frontend (carpeta public)
+app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/api/auth", rutasAuth);
-app.use("/api/blog", rutasBlog);
-app.use("/api/pacientes", rutasPacientes);
+// ========= RUTAS API =========
+// Rutas generales que ya tenías (pacientes, blog, etc.)
+const apiRoutes = require("./routes/index");
 
-app.get("/", (req, res) => {
-  res.json({ mensaje: "API HealthyU funcionando correctamente" });
-});
+// Rutas de autenticación (login / register) NUEVAS
+const authRoutes = require("./routes/auth");
 
-const PUERTO = process.env.PORT || 4000;
+// /api/...  (pacientes, blog, etc.)
+app.use("/api", apiRoutes);
 
-app.listen(PUERTO, () => {
-  console.log(`API HealthyU escuchando en el puerto ${PUERTO}`);
+// /api/auth/... (login, register)
+app.use("/api/auth", authRoutes);
+
+// ========= INICIAR SERVIDOR =========
+app.listen(PORT, () => {
+  console.log(`HealthyU API escuchando en http://localhost:${PORT}`);
 });

@@ -1,221 +1,134 @@
-// routes/auth.js - Autenticación de usuarios
-
+// healthyu-api/routes/auth.js
 const express = require("express");
 const router = express.Router();
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const { sql, poolPromise } = require("./db");
 
-const { sql, pool, poolConnect } = require("../db");
-
-const SECRETO_JWT = "CAMBIA_ESTE_SECRETO";
-
-// REGISTRO
-router.post("/registro", async (req, res) => {
-  const { nombre_usuario, contrasena } = req.body;
+// ============ LOGIN ============
+// POST /api/auth/login
+router.post("/login", async (req, res) => {
+  const { nombre_usuario, contrasena } = req.body || {};
 
   if (!nombre_usuario || !contrasena) {
-    return res.status(400).json({ mensaje: "Faltan datos" });
+    return res
+      .status(400)
+      .json({ mensaje: "Faltan datos: nombre_usuario y/o contrasena." });
   }
 
   try {
-    await poolConnect;
+    const pool = await poolPromise;
 
-    const existe = await pool
+    const result = await pool
       .request()
-      .input("nombre", sql.VarChar, nombre_usuario)
-      .query("SELECT id_usuario FROM Usuario WHERE nombre_usuario = @nombre");
-
-    if (existe.recordset.length > 0) {
-      return res.status(400).json({ mensaje: "El usuario ya existe" });
-    }
-
-    const hashTexto = await bcrypt.hash(contrasena, 10);
-
-    await pool
-      .request()
-      .input("nombre", sql.VarChar, nombre_usuario)
-      .input("hash", sql.VarBinary, Buffer.from(hashTexto))
-      .input("estado", sql.Bit, 1)
+      .input("nombre_usuario", sql.VarChar(50), nombre_usuario)
+      .input("contrasena", sql.VarChar(50), contrasena)
       .query(`
-        INSERT INTO Usuario (id_usuario, nombre_usuario, contrasena_hash, estado)
-        VALUES (
-          (SELECT ISNULL(MAX(id_usuario), 0) + 1 FROM Usuario),
-          @nombre,
-          @hash,
-          @estado
-        )
+        SELECT id_usuario, ci_paciente, nombre_usuario, estado
+        FROM Usuario
+        WHERE nombre_usuario = @nombre_usuario
+          AND contrasena_hash = HASHBYTES('SHA2_256', @contrasena)
       `);
 
-    res.json({ mensaje: "Usuario registrado correctamente" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ mensaje: "Error en el registro" });
-  }
-});
-
-// LOGIN
-router.post("/login", async (req, res) => {
-  const { nombre_usuario, contrasena } = req.body;
-
-  if (!nombre_usuario || !contrasena) {
-    return res.status(400).json({ mensaje: "Faltan datos" });
-  }
-
-  try {
-    await poolConnect;
-
-    const resultado = await pool
-      .request()
-      .input("nombre", sql.VarChar, nombre_usuario)
-      .query("SELECT * FROM Usuario WHERE nombre_usuario = @nombre");
-
-    if (resultado.recordset.length === 0) {
-      return res.status(401).json({ mensaje: "Usuario no encontrado" });
-    }
-
-    const usuarioBD = resultado.recordset[0];
-
-    if (usuarioBD.estado === false || usuarioBD.estado === 0) {
-      return res
-        .status(403)
-        .json({ mensaje: "La cuenta está desactivada o eliminada" });
-    }
-
-    if (!usuarioBD.contrasena_hash) {
-      return res
-        .status(403)
-        .json({ mensaje: "La cuenta no tiene contraseña válida" });
-    }
-
-    const hashGuardado = Buffer.from(usuarioBD.contrasena_hash).toString();
-    const coincide = await bcrypt.compare(contrasena, hashGuardado);
-
-    if (!coincide) {
-      return res.status(401).json({ mensaje: "Contraseña incorrecta" });
-    }
-
-    const token = jwt.sign(
-      {
-        id_usuario: usuarioBD.id_usuario,
-        nombre_usuario: usuarioBD.nombre_usuario,
-      },
-      SECRETO_JWT,
-      { expiresIn: "8h" }
-    );
-
-    res.json({
-      mensaje: "Login correcto",
-      token,
-      usuario: {
-        id_usuario: usuarioBD.id_usuario,
-        nombre_usuario: usuarioBD.nombre_usuario,
-        estado: usuarioBD.estado,
-        ci_paciente: usuarioBD.ci_paciente ?? null,
-      },
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ mensaje: "Error en login" });
-  }
-});
-
-// CAMBIAR CONTRASEÑA
-router.post("/cambiar-password", async (req, res) => {
-  const { id_usuario, contrasenaActual, contrasenaNueva } = req.body;
-
-  if (!id_usuario || !contrasenaActual || !contrasenaNueva) {
-    return res.status(400).json({ mensaje: "Faltan datos" });
-  }
-
-  try {
-    await poolConnect;
-
-    const resultado = await pool
-      .request()
-      .input("idUsuario", sql.Int, id_usuario)
-      .query(
-        "SELECT contrasena_hash, estado FROM Usuario WHERE id_usuario = @idUsuario"
-      );
-
-    if (resultado.recordset.length === 0) {
-      return res.status(404).json({ mensaje: "Usuario no encontrado" });
-    }
-
-    const usuarioBD = resultado.recordset[0];
-
-    if (usuarioBD.estado === false || usuarioBD.estado === 0) {
-      return res
-        .status(403)
-        .json({ mensaje: "La cuenta está desactivada o eliminada" });
-    }
-
-    if (!usuarioBD.contrasena_hash) {
-      return res
-        .status(403)
-        .json({ mensaje: "La cuenta no tiene contraseña válida" });
-    }
-
-    const hashGuardado = Buffer.from(usuarioBD.contrasena_hash).toString();
-    const coincide = await bcrypt.compare(contrasenaActual, hashGuardado);
-
-    if (!coincide) {
+    if (!result.recordset.length) {
       return res
         .status(401)
-        .json({ mensaje: "La contraseña actual no es correcta" });
+        .json({ mensaje: "Usuario o contraseña incorrectos." });
     }
 
-    const nuevoHashTexto = await bcrypt.hash(contrasenaNueva, 10);
-
-    await pool
-      .request()
-      .input("idUsuario", sql.Int, id_usuario)
-      .input("hashNuevo", sql.VarBinary, Buffer.from(nuevoHashTexto))
-      .query(
-        "UPDATE Usuario SET contrasena_hash = @hashNuevo WHERE id_usuario = @idUsuario"
-      );
-
-    res.json({ mensaje: "Contraseña actualizada correctamente" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ mensaje: "Error al cambiar la contraseña" });
+    const usuario = result.recordset[0];
+    return res.json({ usuario });
+  } catch (err) {
+    console.error("Error en POST /auth/login:", err);
+    return res.status(500).json({ mensaje: "Error en el servidor." });
   }
 });
 
-// ELIMINAR CUENTA (desactivar usuario)
-router.delete("/eliminar-cuenta/:idUsuario", async (req, res) => {
-  const idUsuario = parseInt(req.params.idUsuario, 10);
+// ============ REGISTER ============
+// POST /api/auth/register
+router.post("/register", async (req, res) => {
+  const { nombre_usuario, contrasena } = req.body || {};
 
-  if (isNaN(idUsuario)) {
-    return res.status(400).json({ mensaje: "idUsuario no válido" });
+  if (!nombre_usuario || !contrasena) {
+    return res
+      .status(400)
+      .json({ mensaje: "Faltan datos: nombre_usuario y/o contrasena." });
   }
 
   try {
-    await poolConnect;
+    const pool = await poolPromise;
 
+    // 1) Verificar que el usuario NO exista
     const existe = await pool
       .request()
-      .input("idUsuario", sql.Int, idUsuario)
-      .query("SELECT id_usuario FROM Usuario WHERE id_usuario = @idUsuario");
+      .input("nombre_usuario", sql.VarChar(50), nombre_usuario)
+      .query(
+        "SELECT 1 AS existe FROM Usuario WHERE nombre_usuario = @nombre_usuario"
+      );
 
-    if (existe.recordset.length === 0) {
-      return res.status(404).json({ mensaje: "Usuario no encontrado" });
+    if (existe.recordset.length) {
+      return res
+        .status(409)
+        .json({ mensaje: "El nombre de usuario ya está en uso." });
     }
 
+    // 2) Generar nuevo id_usuario
+    const rsId = await pool
+      .request()
+      .query("SELECT ISNULL(MAX(id_usuario), 0) + 1 AS nuevoId FROM Usuario");
+    const nuevoId = rsId.recordset[0].nuevoId;
+
+    // 3) Generar nuevo ci_paciente básico
+    const rsCi = await pool
+      .request()
+      .query(
+        "SELECT ISNULL(MAX(ci_paciente), 0) + 1 AS nuevoCi FROM Paciente"
+      );
+    const nuevoCi = rsCi.recordset[0].nuevoCi;
+
+    // 4) Crear Paciente básico (como tu app de escritorio)
     await pool
       .request()
-      .input("idUsuario", sql.Int, idUsuario)
+      .input("ci_paciente", sql.Int, nuevoCi)
+      .input("correo", sql.VarChar(100), `${nombre_usuario}@temp.com`)
+      .input("nombre_completo", sql.VarChar(120), nombre_usuario)
       .query(`
-        UPDATE Usuario
-        SET estado = 0,
-            contrasena_hash = NULL,
-            ci_paciente = NULL
-        WHERE id_usuario = @idUsuario
+        INSERT INTO Paciente
+          (ci_paciente, id_tipo_sangre, id_centro, correo,
+           nombre_completo, celular, direccion, sexo, foto_perfil, fecha_nacimiento)
+        VALUES
+          (@ci_paciente, 1, NULL, @correo,
+           @nombre_completo, NULL, NULL, NULL, NULL, GETDATE());
       `);
 
-    res.json({ mensaje: "Cuenta eliminada correctamente" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ mensaje: "Error al eliminar la cuenta" });
+    // 5) Insertar usuario con HASHBYTES (igual que en SQL / app)
+    await pool
+      .request()
+      .input("id_usuario", sql.Int, nuevoId)
+      .input("ci_paciente", sql.Int, nuevoCi)
+      .input("nombre_usuario", sql.VarChar(50), nombre_usuario)
+      .input("contrasena", sql.VarChar(50), contrasena)
+      .query(`
+        INSERT INTO Usuario (id_usuario, ci_paciente, nombre_usuario, contrasena_hash, estado)
+        VALUES (
+          @id_usuario,
+          @ci_paciente,
+          @nombre_usuario,
+          HASHBYTES('SHA2_256', @contrasena),
+          1
+        );
+      `);
+
+    // 6) Devolver el usuario creado (mismo formato que login)
+    return res.status(201).json({
+      usuario: {
+        id_usuario: nuevoId,
+        ci_paciente: nuevoCi,
+        nombre_usuario,
+        estado: 1,
+      },
+    });
+  } catch (err) {
+    console.error("Error en POST /auth/register:", err);
+    return res.status(500).json({ mensaje: "Error en el servidor." });
   }
 });
 
