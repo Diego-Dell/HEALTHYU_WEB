@@ -17,6 +17,90 @@
   />
   <!-- Estilos propios -->
   <link rel="stylesheet" href="../assets/css/style.css" />
+
+  <style>
+    /* Detalles visuales solo para Mi Cuenta */
+    .bg-hu-soft {
+      background: radial-gradient(circle at top left, #e4f0ff 0, #f7f9ff 40%, #fefefe 100%);
+    }
+    .hu-card {
+      border-radius: 18px;
+      box-shadow: 0 14px 40px rgba(12, 44, 99, 0.12);
+      border: 1px solid rgba(0,0,0,0.03);
+      background: var(--bg-card, #ffffff);
+    }
+    .perfil-card {
+      background: linear-gradient(145deg, #002454, #4f6ad8, #9c6df0);
+      color: #fdfdfd;
+      position: relative;
+      overflow: hidden;
+    }
+    .perfil-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at -10% 0%, rgba(255,255,255,0.15) 0, transparent 50%),
+        radial-gradient(circle at 120% 120%, rgba(255,255,255,0.12) 0, transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+    .perfil-card-content {
+      position: relative;
+      z-index: 1;
+    }
+    .avatar-xl {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid rgba(255,255,255,0.9);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+      background-color: #e9ecef;
+    }
+    .chip-estado {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .15rem .6rem;
+      border-radius: 999px;
+      font-size: .75rem;
+      background: rgba(16,185,129,.15);
+      color: #bbf7d0;
+      border: 1px solid rgba(16,185,129,.45);
+    }
+    .btnCerrarSesion {
+      border-radius: 999px;
+      background: linear-gradient(135deg,#f97373,#ef4444);
+      border: none;
+      color: #fff;
+      box-shadow: 0 10px 25px rgba(239,68,68,.45);
+    }
+    .btnCerrarSesion:hover {
+      background: linear-gradient(135deg,#ef4444,#b91c1c);
+      color: #fff;
+    }
+    .btnCambiarPass {
+      border-radius: 999px;
+      border-color: rgba(255,255,255,0.7);
+      color: #f9fafb;
+    }
+    .btnCambiarPass:hover {
+      border-color: #ffffff;
+      background: rgba(15,23,42,0.2);
+      color: #ffffff;
+    }
+    .section-title {
+      font-weight: 700;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      font-size: .9rem;
+      color: #6b7280;
+    }
+    .text-small {
+      font-size: .8rem;
+    }
+  </style>
 </head>
 <body>
   <!-- NAVBAR (mismo en todas las páginas) -->
@@ -129,7 +213,10 @@
   <!-- CONTENIDO MI CUENTA -->
   <main class="py-5 bg-hu-soft">
     <div class="container">
-      <h1 class="section-title text-center mb-2">Mi cuenta</h1>
+      <p class="section-title text-center mb-1">
+        Panel del paciente
+      </p>
+      <h1 class="h3 text-center fw-bold mb-2">Mi cuenta</h1>
       <p class="text-center text-muted mb-4">
         Completa tus datos personales y de acceso. No podrás usar todas las funciones
         hasta que tu perfil esté completo.
@@ -143,114 +230,114 @@
       </div>
 
       <div class="row g-4">
-        <!-- Datos de acceso (tabla Usuario) -->
+        <!-- Columna izquierda: perfil + acceso -->
         <div class="col-lg-4">
-          <div class="hu-card p-4 h-100">
-            <h2 class="h5 mb-3">
-              <i class="bi bi-person-circle me-1"></i>
-              Datos de acceso
-            </h2>
-
-            <div class="mb-3">
-              <label for="campoNombreUsuario" class="form-label">Nombre de usuario</label>
-              <input
-                type="text"
-                id="campoNombreUsuario"
-                class="form-control"
-                readonly
-              />
-              <div class="form-text">
-                Este es tu usuario para iniciar sesión.
+          <div class="hu-card perfil-card p-4 h-100">
+            <div class="perfil-card-content d-flex flex-column h-100">
+              <!-- AVATAR -->
+              <div class="text-center mb-3">
+                <div class="d-flex flex-column align-items-center">
+                  <img
+                    id="avatarPreview"
+                    src="../IMAGENES/avatar_default.png"
+                    alt="Foto de perfil"
+                    class="avatar-xl mb-2"
+                  />
+                  <div class="fw-semibold fs-5" id="textoNombreCuenta">Tu nombre</div>
+                  <small class="d-block text-light opacity-75" id="textoCorreoCuenta">
+                    tu@correo.com
+                  </small>
+                  <!-- Puedes dejar este chip o quitarlo si no lo quieres -->
+                  <div class="mt-2">
+                    <span class="chip-estado">
+                      <span class="rounded-circle bg-success-subtle"
+                            style="width:7px;height:7px;"></span>
+                      <span id="chipTextoEstado">Cuenta activa</span>
+                    </span>
+                  </div>
+                </div>
               </div>
+
+
+              <!-- INPUT oculto para cruzar con JS -->
+              <div class="mb-3 mt-2">
+                <label for="campoNombreUsuario" class="form-label text-light text-small mb-1">
+                  Nombre de usuario
+                </label>
+                <input
+                  type="text"
+                  id="campoNombreUsuario"
+                  class="form-control form-control-sm"
+                  readonly
+                />
+                <div class="form-text text-small text-light">
+                  Usuario que utilizas para iniciar sesión.
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="campoCiPaciente" class="form-label text-light text-small mb-1">
+                  CI del paciente
+                </label>
+                <input
+                  type="number"
+                  id="campoCiPaciente"
+                  class="form-control form-control-sm"
+                  placeholder="Ej: 7896543"
+                />
+              </div>
+
+              <hr class="border-light opacity-50" />
+
+              <!-- Botón que abre modal de cambiar contraseña -->
+              <div class="mb-2">
+                <button
+                  type="button"
+                  class="btn btn-outline-light btnCambiarPass w-100"
+                  data-bs-toggle="modal"
+                  data-bs-target="#modalCambiarPassword"
+                >
+                  <i class="bi bi-key-fill me-1"></i>
+                  Cambiar contraseña
+                </button>
+              </div>
+
+              <!-- Eliminar cuenta -->
+              <div class="mb-2">
+                <button id="botonEliminarCuenta" class="btn btn-outline-light w-100">
+                  <i class="bi bi-trash3-fill me-1"></i>
+                  Eliminar cuenta
+                </button>
+              </div>
+
+              <!-- Cerrar sesión -->
+              <div class="mt-auto pt-2">
+                <button
+                  type="button"
+                  class="btn btnCerrarSesion w-100"
+                  onclick="logout()"
+                >
+                  <i class="bi bi-box-arrow-right me-1"></i>
+                  Cerrar sesión
+                </button>
+              </div>
+
+              <div id="mensajePass" class="text-small mt-2"></div>
             </div>
-
-            <div class="mb-3">
-              <label for="campoCiPaciente" class="form-label">CI del paciente</label>
-              <input
-                type="number"
-                id="campoCiPaciente"
-                class="form-control"
-                placeholder="Ej: 7896543"
-              />
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Estado de la cuenta</label>
-              <input
-                type="text"
-                id="campoEstado"
-                class="form-control"
-                value="Activo"
-                readonly
-              />
-            </div>
-
-            <hr />
-
-            <h3 class="h6 mb-2">Cambiar contraseña</h3>
-            <div class="mb-2">
-              <label for="campoPassActual" class="form-label">Contraseña actual</label>
-              <input
-                type="password"
-                id="campoPassActual"
-                class="form-control"
-                placeholder="••••••••"
-              />
-            </div>
-            <div class="mb-2">
-              <label for="campoPassNueva" class="form-label">Nueva contraseña</label>
-              <input
-                type="password"
-                id="campoPassNueva"
-                class="form-control"
-                placeholder="Mínimo 6 caracteres"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="campoPassRepetir" class="form-label">Repetir nueva contraseña</label>
-              <input
-                type="password"
-                id="campoPassRepetir"
-                class="form-control"
-                placeholder="Repite la nueva contraseña"
-              />
-            </div>
-
-            <button id="btnCambiarPass" class="btn btn-outline-primary w-100">
-              <i class="bi bi-key-fill me-1"></i>
-              Actualizar contraseña
-            </button>
-
-            <button id="botonEliminarCuenta" class="btn btn-outline-danger w-100 mt-3">
-              <i class="bi bi-trash3-fill me-1"></i>
-              Eliminar cuenta
-            </button>
-
-            <div id="mensajePass" class="text-small mt-2"></div>
           </div>
         </div>
 
-        <!-- Datos personales (tabla Paciente) -->
+        <!-- Columna derecha: datos personales -->
         <div class="col-lg-8">
           <div class="hu-card p-4">
-            <h2 class="h5 mb-3">
-              <i class="bi bi-file-person me-1"></i>
-              Datos personales del paciente
-            </h2>
-
-            <!-- AVATAR + nombre corto -->
-            <div class="d-flex align-items-center gap-3 mb-4">
-              <img
-                id="avatarPreview"
-                src="../IMAGENES/avatar_default.png"
-                alt="Foto de perfil"
-                class="rounded-circle border"
-                style="width: 80px; height: 80px; object-fit: cover;"
-              />
-              <div>
-                <div class="fw-semibold" id="textoNombreCuenta">Tu nombre</div>
-                <small class="text-muted d-block" id="textoCorreoCuenta">tu@correo.com</small>
-              </div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h2 class="h5 mb-0">
+                <i class="bi bi-file-person me-1"></i>
+                Datos personales del paciente
+              </h2>
+              <span class="badge bg-primary-subtle text-primary text-small">
+                Perfil Healthy U
+              </span>
             </div>
 
             <form id="formPerfil">
@@ -296,7 +383,7 @@
                   />
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-4">
                   <label for="campoDireccion" class="form-label">Dirección *</label>
                   <input
                     type="text"
@@ -346,22 +433,15 @@
                     class="form-control"
                     accept="image/*"
                   />
-                  <div class="form-text">
+                  <div class="form-text text-small">
                     Opcional, se guarda como <code>varbinary(max)</code> en la BD.
                   </div>
                 </div>
 
-                <div class="col-12 text-end">
+                <div class="col-12 text-end mt-2">
                   <button type="submit" class="btn btn-hu-accent">
                     <i class="bi bi-save me-1"></i>
                     Guardar datos
-                  </button>
-                </div>
-
-                <div class="col-12">
-                  <button type="button" class="btn btn-outline-secondary w-100 mt-3" onclick="logout()">
-                    <i class="bi bi-box-arrow-right me-1"></i>
-                    Cerrar sesión
                   </button>
                 </div>
               </div>
@@ -409,6 +489,78 @@
             Esta es la página de Mi Cuenta. Para modificar tus datos debes iniciar sesión
             desde la página de inicio.
           </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CAMBIAR CONTRASEÑA -->
+  <div
+    class="modal fade"
+    id="modalCambiarPassword"
+    tabindex="-1"
+    aria-labelledby="modalCambiarPasswordLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalCambiarPasswordLabel">
+            <i class="bi bi-key-fill me-1"></i> Cambiar contraseña
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Cerrar"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-2">
+            <label for="campoPassActual" class="form-label">Contraseña actual</label>
+            <input
+              type="password"
+              id="campoPassActual"
+              class="form-control"
+              placeholder="••••••••"
+            />
+          </div>
+          <div class="mb-2">
+            <label for="campoPassNueva" class="form-label">Nueva contraseña</label>
+            <input
+              type="password"
+              id="campoPassNueva"
+              class="form-control"
+              placeholder="Mínimo 6 caracteres"
+            />
+          </div>
+          <div class="mb-2">
+            <label for="campoPassRepetir" class="form-label">Repetir nueva contraseña</label>
+            <input
+              type="password"
+              id="campoPassRepetir"
+              class="form-control"
+              placeholder="Repite la nueva contraseña"
+            />
+          </div>
+          <div id="mensajePass" class="text-small mt-1"></div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            id="btnCambiarPass"
+            class="btn btn-primary"
+          >
+            <i class="bi bi-check2-circle me-1"></i>
+            Actualizar contraseña
+          </button>
         </div>
       </div>
     </div>

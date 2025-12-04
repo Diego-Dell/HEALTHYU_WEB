@@ -147,7 +147,16 @@ router.get("/pacientes/datos/:usuario", async (req, res) => {
         .input("ci", sql.Int, ci)
         .query(`SELECT * FROM Paciente WHERE ci_paciente = @ci`);
 
-      paciente = pacRes.recordset[0] || null;
+      const row = pacRes.recordset[0];
+      if (row) {
+        paciente = {
+          ...row,
+          // foto_perfil viene como Buffer → la convertimos a base64
+          foto_perfil: row.foto_perfil
+            ? Buffer.from(row.foto_perfil).toString("base64")
+            : null,
+        };
+      }
     }
 
     return res.json({
@@ -164,20 +173,23 @@ router.get("/pacientes/datos/:usuario", async (req, res) => {
 
 
 
+
 router.put("/pacientes/por-usuario/:usuario", async (req, res) => {
   try {
     const nombreUsuario = req.params.usuario;
-    const {
-      ci_paciente,
-      nombre_completo,
-      correo,
-      celular,
-      fecha_nacimiento,
-      direccion,
-      sexo,
-      id_tipo_sangre,
-      id_centro,
-    } = req.body || {};
+        const {
+        ci_paciente,
+        nombre_completo,
+        correo,
+        celular,
+        fecha_nacimiento,
+        direccion,
+        sexo,
+        id_tipo_sangre,
+        id_centro,
+        foto_perfil, 
+        } = req.body || {};
+
 
     const pool = await poolPromise;
 
@@ -223,6 +235,17 @@ router.put("/pacientes/por-usuario/:usuario", async (req, res) => {
       // 'YYYY-MM-DD' la dejamos tal cual, mssql la acepta
       fechaNacDate = fecha_nacimiento;
     }
+
+
+            let fotoBuffer = null;
+        if (foto_perfil && typeof foto_perfil === "string" && foto_perfil.trim() !== "") {
+        try {
+            fotoBuffer = Buffer.from(foto_perfil, "base64");
+        } catch (e) {
+            fotoBuffer = null;
+        }
+}
+
 
     const request = pool.request();
 
