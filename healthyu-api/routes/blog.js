@@ -1,9 +1,9 @@
 // routes/blog.js - Rutas de Blog
-
 const express = require("express");
 const router = express.Router();
 
-const { sql, pool, poolConnect } = require("../db");
+const { sql, pool, poolConnect } = require("../db"); // <-- ../db
+
 
 // =============================
 //     OBTENER POSTS

@@ -1,215 +1,224 @@
-// routes/pacientes.js - Datos personales del paciente
+// routes/pacientes.js
+
 
 const express = require("express");
 const router = express.Router();
-
 const { sql, pool, poolConnect } = require("../db");
 
-// OBTENER PACIENTE POR USUARIO
-router.get("/por-usuario/:idUsuario", async (req, res) => {
-  const idUsuario = parseInt(req.params.idUsuario, 10);
+// ==========================
+// GET /pacientes/por-usuario/:id_usuario
+// ==========================
+router.get("/por-usuario/:id_usuario", async (req, res) => {
+  const id_usuario = parseInt(req.params.id_usuario, 10);
 
-  if (isNaN(idUsuario)) {
-    return res.status(400).json({ mensaje: "idUsuario no válido" });
+  if (Number.isNaN(id_usuario)) {
+    return res.status(400).json({ mensaje: "id_usuario inválido." });
   }
 
   try {
     await poolConnect;
+    const request = pool.request();
 
-    const resUsuario = await pool
-      .request()
-      .input("idUsuario", sql.Int, idUsuario)
-      .query(
-        "SELECT ci_paciente, estado FROM Usuario WHERE id_usuario = @idUsuario"
-      );
+    request.input("id_usuario", sql.Int, id_usuario);
 
-    if (resUsuario.recordset.length === 0) {
-      return res.status(404).json({ mensaje: "Usuario no encontrado" });
+    const result = await request.query(`
+      SELECT
+          u.id_usuario,
+          u.nombre_usuario,
+          u.ci_paciente,
+          p.nombre_completo,
+          p.correo,
+          p.celular,
+          p.direccion,
+          p.sexo,
+          p.id_tipo_sangre,
+          p.id_centro,
+          p.fecha_nacimiento,
+          p.foto_perfil
+      FROM Usuario u
+      LEFT JOIN Paciente p
+          ON p.ci_paciente = u.ci_paciente
+      WHERE u.id_usuario = @id_usuario;
+    `);
+
+    const row = result.recordset[0];
+
+    if (!row) {
+      // Usuario no encontrado
+      return res.status(404).json({ mensaje: "Usuario no encontrado." });
     }
 
-    const usuario = resUsuario.recordset[0];
-
-    if (usuario.estado === false || usuario.estado === 0) {
-      return res
-        .status(403)
-        .json({ mensaje: "La cuenta está desactivada o eliminada" });
+    // Normalizar respuesta para el frontend
+    let fechaISO = null;
+    if (row.fecha_nacimiento instanceof Date) {
+      fechaISO = row.fecha_nacimiento.toISOString().slice(0, 10); // yyyy-mm-dd
     }
 
-    if (!usuario.ci_paciente) {
-      return res
-        .status(404)
-        .json({ mensaje: "El usuario no tiene datos de paciente aún" });
-    }
+    const paciente = {
+      id_usuario: row.id_usuario,
+      nombre_usuario: row.nombre_usuario,
+      ci_paciente: row.ci_paciente,
+      nombre_completo: row.nombre_completo,
+      correo: row.correo,
+      celular: row.celular,
+      direccion: row.direccion,
+      sexo: row.sexo === null || row.sexo === undefined ? null : Number(row.sexo), // 0 / 1
+      id_tipo_sangre: row.id_tipo_sangre,
+      id_centro: row.id_centro,
+      fecha_nacimiento: fechaISO,
+      // Si más adelante quieres usar la foto:
+      foto_base64: row.foto_perfil ? Buffer.from(row.foto_perfil).toString("base64") : null
+    };
 
-    const ciPaciente = usuario.ci_paciente;
-
-    const resPaciente = await pool
-      .request()
-      .input("ciPaciente", sql.Int, ciPaciente)
-      .query(`
-        SELECT ci_paciente, correo, nombre_completo, celular,
-               edad, direccion, sexo, fecha_nacimiento, id_tipo_sangre
-        FROM Paciente
-        WHERE ci_paciente = @ciPaciente
-      `);
-
-    if (resPaciente.recordset.length === 0) {
-      return res
-        .status(404)
-        .json({ mensaje: "Paciente no encontrado para este usuario" });
-    }
-
-    const paciente = resPaciente.recordset[0];
-    res.json({ paciente });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ mensaje: "Error obteniendo datos del paciente" });
+    return res.json({ paciente });
+  } catch (err) {
+    console.error("Error en GET /pacientes/por-usuario:", err);
+    return res.status(500).json({ mensaje: "Error en el servidor." });
   }
 });
 
-// GUARDAR / ACTUALIZAR PACIENTE POR USUARIO
-router.put("/por-usuario/:idUsuario", async (req, res) => {
-  const idUsuario = parseInt(req.params.idUsuario, 10);
+// ==========================
+// PUT /pacientes/por-usuario/:id_usuario
+// Guarda / actualiza datos del paciente
+// ==========================
+router.put("/por-usuario/:id_usuario", async (req, res) => {
+  const id_usuario = parseInt(req.params.id_usuario, 10);
 
-  if (isNaN(idUsuario)) {
-    return res.status(400).json({ mensaje: "idUsuario no válido" });
+  if (Number.isNaN(id_usuario)) {
+    return res.status(400).json({ mensaje: "id_usuario inválido." });
   }
 
   const {
-    ci_paciente,
+    ci_paciente,        // puede venir null o vacío
     nombre_completo,
     correo,
     celular,
-    edad,
-    fecha_nacimiento,
+    fecha_nacimiento,   // 'YYYY-MM-DD' o ''
     direccion,
-    sexo,
+    sexo,               // 0 / 1 (string o número)
     id_tipo_sangre,
-  } = req.body;
-
-  if (
-    !ci_paciente ||
-    !nombre_completo ||
-    !correo ||
-    !celular ||
-    !edad ||
-    !fecha_nacimiento ||
-    !direccion ||
-    (sexo !== 0 && sexo !== 1 && sexo !== "0" && sexo !== "1")
-  ) {
-    return res.status(400).json({ mensaje: "Faltan datos obligatorios" });
-  }
-
-  const sexoBit = Number(sexo);
-  const idTipo = id_tipo_sangre ? Number(id_tipo_sangre) : null;
+    id_centro           // puede venir null / ''
+    // Por ahora no tratamos foto_perfil desde la web
+  } = req.body || {};
 
   try {
     await poolConnect;
+    const request = pool.request();
 
-    const transaccion = new sql.Transaction(pool);
-    await transaccion.begin();
+    // Parseos básicos
+    const ciPacInt =
+      ci_paciente && String(ci_paciente).trim() !== ""
+        ? parseInt(ci_paciente, 10)
+        : null;
 
-    try {
-      // Verificar usuario activo
-      const reqUsuario = new sql.Request(transaccion);
-      const resUsuario = await reqUsuario
-        .input("idUsuario", sql.Int, idUsuario)
-        .query(
-          "SELECT id_usuario, estado FROM Usuario WHERE id_usuario = @idUsuario"
-        );
+    const tipoSangreInt =
+      id_tipo_sangre && String(id_tipo_sangre).trim() !== ""
+        ? parseInt(id_tipo_sangre, 10)
+        : null;
 
-      if (resUsuario.recordset.length === 0) {
-        await transaccion.rollback();
-        return res.status(404).json({ mensaje: "Usuario no encontrado" });
-      }
+    const idCentroInt =
+      id_centro && String(id_centro).trim() !== ""
+        ? parseInt(id_centro, 10)
+        : null;
 
-      const usuario = resUsuario.recordset[0];
-      if (usuario.estado === false || usuario.estado === 0) {
-        await transaccion.rollback();
-        return res
-          .status(403)
-          .json({ mensaje: "La cuenta está desactivada o eliminada" });
-      }
+    const sexoBit =
+      sexo === null || sexo === undefined || String(sexo).trim() === ""
+        ? null
+        : Number(sexo); // 0 o 1
 
-      // ¿Existe paciente?
-      const reqPaciente = new sql.Request(transaccion);
-      const resPaciente = await reqPaciente
-        .input("ciPaciente", sql.Int, ci_paciente)
-        .query(
-          "SELECT ci_paciente FROM Paciente WHERE ci_paciente = @ciPaciente"
-        );
-
-      if (resPaciente.recordset.length > 0) {
-        // Actualizar
-        const reqActualizar = new sql.Request(transaccion);
-        await reqActualizar
-          .input("ciPaciente", sql.Int, ci_paciente)
-          .input("nombreCompleto", sql.VarChar, nombre_completo)
-          .input("correo", sql.VarChar, correo)
-          .input("celular", sql.VarChar, celular)
-          .input("edad", sql.Int, edad)
-          .input("fechaNac", sql.DateTime, fecha_nacimiento)
-          .input("direccion", sql.VarChar, direccion)
-          .input("sexo", sql.Bit, sexoBit)
-          .input("idTipoSangre", sql.Int, idTipo)
-          .query(`
-            UPDATE Paciente
-            SET nombre_completo = @nombreCompleto,
-                correo = @correo,
-                celular = @celular,
-                edad = @edad,
-                fecha_nacimiento = @fechaNac,
-                direccion = @direccion,
-                sexo = @sexo,
-                id_tipo_sangre = @idTipoSangre
-            WHERE ci_paciente = @ciPaciente
-          `);
-      } else {
-        // Insertar
-        const reqInsertar = new sql.Request(transaccion);
-        await reqInsertar
-          .input("ciPaciente", sql.Int, ci_paciente)
-          .input("nombreCompleto", sql.VarChar, nombre_completo)
-          .input("correo", sql.VarChar, correo)
-          .input("celular", sql.VarChar, celular)
-          .input("edad", sql.Int, edad)
-          .input("fechaNac", sql.DateTime, fecha_nacimiento)
-          .input("direccion", sql.VarChar, direccion)
-          .input("sexo", sql.Bit, sexoBit)
-          .input("idTipoSangre", sql.Int, idTipo)
-          .query(`
-            INSERT INTO Paciente (
-              ci_paciente, id_tipo_sangre,
-              correo, nombre_completo, celular,
-              edad, direccion, sexo, fecha_nacimiento
-            )
-            VALUES (
-              @ciPaciente, @idTipoSangre,
-              @correo, @nombreCompleto, @celular,
-              @edad, @direccion, @sexo, @fechaNac
-            )
-          `);
-      }
-
-      // Vincular paciente con usuario
-      const reqVincular = new sql.Request(transaccion);
-      await reqVincular
-        .input("idUsuario", sql.Int, idUsuario)
-        .input("ciPaciente", sql.Int, ci_paciente)
-        .query(
-          "UPDATE Usuario SET ci_paciente = @ciPaciente WHERE id_usuario = @idUsuario"
-        );
-
-      await transaccion.commit();
-      res.json({ mensaje: "Datos de paciente guardados correctamente" });
-    } catch (errorInterno) {
-      await transaccion.rollback();
-      console.error(errorInterno);
-      res.status(500).json({ mensaje: "Error guardando datos de paciente" });
+    let fechaNacDate = null;
+    if (fecha_nacimiento && String(fecha_nacimiento).trim() !== "") {
+      // El driver de mssql admite string 'YYYY-MM-DD' directamente,
+      // pero si quieres puedes convertirlo a Date aquí.
+      fechaNacDate = fecha_nacimiento;
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ mensaje: "Error en la transacción de paciente" });
+
+    request
+      .input("id_usuario", sql.Int, id_usuario)
+      .input("ci_paciente", sql.Int, ciPacInt)
+      .input("nombre_completo", sql.VarChar(120), nombre_completo || null)
+      .input("correo", sql.VarChar(100), correo || null)
+      .input("celular", sql.VarChar(20), celular || null)
+      .input("direccion", sql.VarChar(200), direccion || null)
+      .input("sexo", sql.Bit, sexoBit)
+      .input("id_tipo_sangre", sql.Int, tipoSangreInt)
+      .input("id_centro", sql.Int, idCentroInt)
+      .input("fecha_nacimiento", sql.Date, fechaNacDate);
+
+    const result = await request.query(`
+      DECLARE @ci_final INT;
+
+      -- Si ya viene un CI, lo usamos. Si no, generamos uno nuevo.
+      IF @ci_paciente IS NOT NULL
+      BEGIN
+          SET @ci_final = @ci_paciente;
+      END
+      ELSE
+      BEGIN
+          SELECT @ci_final = ISNULL(MAX(ci_paciente), 0) + 1
+          FROM Paciente;
+      END
+
+      -- Si existe paciente -> UPDATE, si no -> INSERT
+      IF EXISTS (SELECT 1 FROM Paciente WHERE ci_paciente = @ci_final)
+      BEGIN
+          UPDATE Paciente
+          SET nombre_completo  = @nombre_completo,
+              correo           = @correo,
+              celular          = @celular,
+              direccion        = @direccion,
+              sexo             = @sexo,
+              id_tipo_sangre   = @id_tipo_sangre,
+              id_centro        = @id_centro,
+              fecha_nacimiento = @fecha_nacimiento
+          WHERE ci_paciente = @ci_final;
+      END
+      ELSE
+      BEGIN
+          INSERT INTO Paciente (
+              ci_paciente,
+              id_tipo_sangre,
+              id_centro,
+              correo,
+              nombre_completo,
+              celular,
+              direccion,
+              sexo,
+              fecha_nacimiento
+          )
+          VALUES (
+              @ci_final,
+              @id_tipo_sangre,
+              @id_centro,
+              @correo,
+              @nombre_completo,
+              @celular,
+              @direccion,
+              @sexo,
+              @fecha_nacimiento
+          );
+      END
+
+      -- Vincular el paciente al usuario
+      UPDATE Usuario
+      SET ci_paciente = @ci_final
+      WHERE id_usuario = @id_usuario;
+
+      SELECT @ci_final AS ci_paciente;
+    `);
+
+    const ciFinal =
+      result.recordset && result.recordset[0]
+        ? result.recordset[0].ci_paciente
+        : ciPacInt;
+
+    return res.json({
+      mensaje: "Datos de paciente guardados correctamente.",
+      ci_paciente: ciFinal
+    });
+  } catch (err) {
+    console.error("Error en PUT /pacientes/por-usuario:", err);
+    return res.status(500).json({ mensaje: "Error en el servidor." });
   }
 });
 

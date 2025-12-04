@@ -1,105 +1,74 @@
 // routes/index.js
 const express = require("express");
 const router = express.Router();
-const { sql, poolPromise } = require("./db");
+const crypto = require("crypto");
+const { sql, poolPromise } = require("../db");
 
-// ======================================================================
-//  AUTH
-// ======================================================================
 
-// POST /api/auth/login
-router.post("/auth/login", async (req, res) => {
-  const { nombre_usuario, contrasena } = req.body;
+// =============== util hash ===============
+function hashPassword(pass) {
+  return Buffer.from(
+    crypto.createHash("sha256").update(pass).digest("hex"),
+    "hex"
+  );
+}
 
-  if (!nombre_usuario || !contrasena) {
-    return res
-      .status(400)
-      .json({ mensaje: "Faltan nombre de usuario o contraseña." });
-  }
-
+// ===================================================
+//  POST /auth/register → crea Usuario con id aleatorio
+// ===================================================
+router.post("/auth/register", async (req, res) => {
   try {
-    const pool = await poolPromise;
+    const { nombre_usuario, contrasena } = req.body;
 
-    // IMPORTANTE: el hash se genera en SQL con HASHBYTES,
-    // igual que en tu app de escritorio.
-    const result = await pool
-      .request()
-      .input("nombre_usuario", sql.VarChar(50), nombre_usuario)
-      .input("contrasena", sql.VarChar(50), contrasena)
-      .query(`
-        SELECT id_usuario,
-               ci_paciente,
-               nombre_usuario,
-               estado
-        FROM   Usuario
-        WHERE  nombre_usuario = @nombre_usuario
-        AND    contrasena_hash = HASHBYTES('SHA2_256', @contrasena);
-      `);
-
-    if (result.recordset.length === 0) {
-      return res
-        .status(401)
-        .json({ mensaje: "Usuario o contraseña incorrectos." });
+    if (!nombre_usuario || !contrasena) {
+      return res.status(400).json({ mensaje: "Faltan datos." });
     }
 
-    const usuario = result.recordset[0];
-
-    // Lo que espera el frontend: { usuario: {...} }
-    return res.json({ usuario });
-  } catch (err) {
-    console.error("Error en /auth/login:", err);
-    return res.status(500).json({ mensaje: "Error en el servidor." });
-  }
-});
-
-// POST /api/auth/register
-router.post("/auth/register", async (req, res) => {
-  const { nombre_usuario, contrasena } = req.body;
-
-  if (!nombre_usuario || !contrasena) {
-    return res
-      .status(400)
-      .json({ mensaje: "Faltan nombre de usuario o contraseña." });
-  }
-
-  try {
     const pool = await poolPromise;
 
-    // 1) Verificar que el usuario NO exista
+    // 1) ¿El usuario existe?
     const existe = await pool
       .request()
-      .input("nombre_usuario", sql.VarChar(50), nombre_usuario)
-      .query(`
-        SELECT COUNT(*) AS total
-        FROM   Usuario
-        WHERE  nombre_usuario = @nombre_usuario;
-      `);
+      .input("u", sql.VarChar(50), nombre_usuario)
+      .query("SELECT 1 FROM Usuario WHERE nombre_usuario = @u");
 
-    if (existe.recordset[0].total > 0) {
+    if (existe.recordset.length > 0) {
       return res.status(400).json({ mensaje: "El usuario ya existe." });
     }
 
-    // 2) Insertar usuario con hash generado por SQL
-    const insert = await pool
-      .request()
-      .input("nombre_usuario", sql.VarChar(50), nombre_usuario)
-      .input("contrasena", sql.VarChar(50), contrasena)
-      .query(`
-        INSERT INTO Usuario (ci_paciente, nombre_usuario, contrasena_hash, estado)
-        VALUES (NULL, @nombre_usuario, HASHBYTES('SHA2_256', @contrasena), 1);
+    // 2) generar id_usuario aleatorio (555xxxxx)
+    let id_usuario;
+    let existeId = true;
 
-        SELECT SCOPE_IDENTITY() AS id_usuario;
+    while (existeId) {
+      // número aleatorio entre 55500000 y 55599999
+      id_usuario = 55500000 + Math.floor(Math.random() * 100000);
+
+      const check = await pool
+        .request()
+        .input("id", sql.Int, id_usuario)
+        .query("SELECT 1 FROM Usuario WHERE id_usuario = @id");
+
+      existeId = check.recordset.length > 0;
+    }
+
+    // 3) hash de contraseña
+    const hash = hashPassword(contrasena);
+
+    // 4) insert usuario
+    await pool
+      .request()
+      .input("id_usuario", sql.Int, id_usuario)
+      .input("nombre_usuario", sql.VarChar(50), nombre_usuario)
+      .input("hash", sql.VarBinary, hash)
+      .query(`
+        INSERT INTO Usuario (id_usuario, ci_paciente, nombre_usuario, contrasena_hash, estado)
+        VALUES (@id_usuario, NULL, @nombre_usuario, @hash, 1)
       `);
 
-    const id_usuario = insert.recordset[0].id_usuario;
-
-    return res.status(201).json({
-      usuario: {
-        id_usuario,
-        nombre_usuario,
-        ci_paciente: null,
-        estado: 1,
-      },
+    return res.json({
+      mensaje: "Usuario registrado correctamente.",
+      id_usuario_generado: id_usuario,
     });
   } catch (err) {
     console.error("Error en /auth/register:", err);
@@ -107,174 +76,229 @@ router.post("/auth/register", async (req, res) => {
   }
 });
 
-// POST /api/auth/cambiar-password
-router.post("/auth/cambiar-password", async (req, res) => {
-  const { id_usuario, contrasenaActual, contrasenaNueva } = req.body;
 
-  if (!id_usuario || !contrasenaActual || !contrasenaNueva) {
-    return res
-      .status(400)
-      .json({ mensaje: "Faltan datos para cambiar la contraseña." });
-  }
 
+// ===================================================
+//  POST /auth/login  → Validar credenciales
+// ===================================================
+router.post("/auth/login", async (req, res) => {
   try {
-    const pool = await poolPromise;
+    const { nombre_usuario, contrasena } = req.body;
 
-    // Validar contraseña actual
-    const check = await pool
-      .request()
-      .input("id_usuario", sql.Int, id_usuario)
-      .input("contrasenaActual", sql.VarChar(50), contrasenaActual)
-      .query(`
-        SELECT COUNT(*) AS total
-        FROM   Usuario
-        WHERE  id_usuario = @id_usuario
-        AND    contrasena_hash = HASHBYTES('SHA2_256', @contrasenaActual);
-      `);
-
-    if (check.recordset[0].total === 0) {
+    if (!nombre_usuario || !contrasena) {
       return res
-        .status(401)
-        .json({ mensaje: "La contraseña actual no es correcta." });
+        .status(400)
+        .json({ mensaje: "Datos incompletos para login." });
     }
 
-    // Actualizar a la nueva contraseña (hash desde SQL)
-    await pool
-      .request()
-      .input("id_usuario", sql.Int, id_usuario)
-      .input("contrasenaNueva", sql.VarChar(50), contrasenaNueva)
-      .query(`
-        UPDATE Usuario
-        SET    contrasena_hash = HASHBYTES('SHA2_256', @contrasenaNueva)
-        WHERE  id_usuario = @id_usuario;
-      `);
-
-    return res.json({ mensaje: "Contraseña actualizada correctamente." });
-  } catch (err) {
-    console.error("Error en /auth/cambiar-password:", err);
-    return res.status(500).json({ mensaje: "Error en el servidor." });
-  }
-});
-
-// DELETE /api/auth/eliminar-cuenta/:id_usuario
-router.delete("/auth/eliminar-cuenta/:id_usuario", async (req, res) => {
-  const { id_usuario } = req.params;
-
-  try {
     const pool = await poolPromise;
-
-    await pool
-      .request()
-      .input("id_usuario", sql.Int, id_usuario)
-      .query(`
-        DELETE FROM Usuario
-        WHERE id_usuario = @id_usuario;
-      `);
-
-    return res.json({ mensaje: "Cuenta eliminada correctamente." });
-  } catch (err) {
-    console.error("Error en /auth/eliminar-cuenta:", err);
-    return res.status(500).json({ mensaje: "Error en el servidor." });
-  }
-});
-
-// ======================================================================
-//  PACIENTES (lo que usa cuenta.html)
-// ======================================================================
-
-// GET /api/pacientes/por-usuario/:id_usuario
-router.get("/pacientes/por-usuario/:id_usuario", async (req, res) => {
-  const { id_usuario } = req.params;
-
-  try {
-    const pool = await poolPromise;
+    const hash = hashPassword(contrasena);
 
     const result = await pool
       .request()
-      .input("id_usuario", sql.Int, id_usuario)
+      .input("u", sql.VarChar(50), nombre_usuario)
+      .input("h", sql.VarBinary, hash)
       .query(`
-        SELECT P.*
-        FROM   Usuario U
-        JOIN   Paciente P ON P.ci_paciente = U.ci_paciente
-        WHERE  U.id_usuario = @id_usuario;
+        SELECT id_usuario, ci_paciente, nombre_usuario
+        FROM Usuario
+        WHERE nombre_usuario = @u AND contrasena_hash = @h AND estado = 1
       `);
 
     if (result.recordset.length === 0) {
-      return res.status(404).json({ mensaje: "Paciente no encontrado." });
+      return res.status(401).json({ mensaje: "Credenciales incorrectas." });
     }
 
-    return res.json({ paciente: result.recordset[0] });
+    return res.json({ usuario: result.recordset[0] });
   } catch (err) {
-    console.error("Error en GET /pacientes/por-usuario:", err);
+    console.error("Error en /auth/login:", err);
     return res.status(500).json({ mensaje: "Error en el servidor." });
   }
 });
 
-// PUT /api/pacientes/por-usuario/:id_usuario
-router.put("/pacientes/por-usuario/:id_usuario", async (req, res) => {
-  const { id_usuario } = req.params;
-  const {
-    ci_paciente,
-    nombre_completo,
-    correo,
-    celular,
-    fecha_nacimiento,
-    direccion,
-    sexo,
-    id_tipo_sangre,
-    id_centro,
-  } = req.body;
-
+// ===================================================
+// GET /pacientes/datos/:usuario → Usuario + Paciente
+// ===================================================
+router.get("/pacientes/datos/:usuario", async (req, res) => {
   try {
+    const nombre = req.params.usuario;
     const pool = await poolPromise;
 
-    // Asegurarnos de que el Usuario tenga ese ci_paciente asociado
-    await pool
+    const usuario = await pool
       .request()
-      .input("id_usuario", sql.Int, id_usuario)
-      .input("ci_paciente", sql.Int, ci_paciente)
+      .input("u", sql.VarChar(50), nombre)
       .query(`
-        UPDATE Usuario
-        SET    ci_paciente = @ci_paciente
-        WHERE  id_usuario = @id_usuario;
+        SELECT id_usuario, ci_paciente, nombre_usuario, estado
+        FROM Usuario
+        WHERE nombre_usuario = @u
       `);
 
-    // Insertar/actualizar Paciente
-    await pool
+    if (usuario.recordset.length === 0) {
+      return res.status(404).json({ mensaje: "Usuario no encontrado." });
+    }
+
+    const datosUsuario = usuario.recordset[0];
+    const ci = datosUsuario.ci_paciente;
+
+    let paciente = null;
+
+    if (ci !== null && ci !== undefined) {
+      const pacRes = await pool
+        .request()
+        .input("ci", sql.Int, ci)
+        .query(`SELECT * FROM Paciente WHERE ci_paciente = @ci`);
+
+      paciente = pacRes.recordset[0] || null;
+    }
+
+    return res.json({
+      usuario: datosUsuario,
+      paciente,
+    });
+  } catch (err) {
+    console.error("Error en GET /pacientes/datos:", err);
+    return res.status(500).json({ mensaje: "Error en el servidor." });
+  }
+});
+
+
+
+
+
+router.put("/pacientes/por-usuario/:usuario", async (req, res) => {
+  try {
+    const nombreUsuario = req.params.usuario;
+    const {
+      ci_paciente,
+      nombre_completo,
+      correo,
+      celular,
+      fecha_nacimiento,
+      direccion,
+      sexo,
+      id_tipo_sangre,
+      id_centro,
+    } = req.body || {};
+
+    const pool = await poolPromise;
+
+    // buscamos id_usuario del nombre de usuario
+    const u = await pool
       .request()
-      .input("ci_paciente", sql.Int, ci_paciente)
-      .input("nombre_completo", sql.VarChar(120), nombre_completo)
-      .input("correo", sql.VarChar(100), correo)
-      .input("celular", sql.VarChar(20), celular)
-      .input("fecha_nacimiento", sql.DateTime, fecha_nacimiento)
-      .input("direccion", sql.VarChar(200), direccion)
-      .input("sexo", sql.Bit, sexo)
-      .input("id_tipo_sangre", sql.Int, id_tipo_sangre)
-      .input("id_centro", sql.Int, id_centro || null)
+      .input("u", sql.VarChar(50), nombreUsuario)
       .query(`
-        IF EXISTS (SELECT 1 FROM Paciente WHERE ci_paciente = @ci_paciente)
-        BEGIN
-          UPDATE Paciente
-          SET    nombre_completo  = @nombre_completo,
-                 correo           = @correo,
-                 celular          = @celular,
-                 fecha_nacimiento = @fecha_nacimiento,
-                 direccion        = @direccion,
-                 sexo             = @sexo,
-                 id_tipo_sangre   = @id_tipo_sangre,
-                 id_centro        = @id_centro
-          WHERE  ci_paciente = @ci_paciente;
-        END
-        ELSE
-        BEGIN
-          INSERT INTO Paciente
-            (ci_paciente, id_tipo_sangre, id_centro, correo,
-             nombre_completo, celular, direccion, sexo, foto_perfil, fecha_nacimiento)
-          VALUES
-            (@ci_paciente, @id_tipo_sangre, @id_centro, @correo,
-             @nombre_completo, @celular, @direccion, @sexo, NULL, @fecha_nacimiento);
-        END
+        SELECT id_usuario, ci_paciente
+        FROM Usuario
+        WHERE nombre_usuario = @u
       `);
+
+    if (u.recordset.length === 0) {
+      return res.status(404).json({ mensaje: "Usuario no encontrado." });
+    }
+
+    const id_usuario = u.recordset[0].id_usuario;
+
+    // parseos básicos
+    const ciPacInt =
+      ci_paciente && String(ci_paciente).trim() !== ""
+        ? parseInt(ci_paciente, 10)
+        : null;
+
+    const tipoSangreInt =
+      id_tipo_sangre && String(id_tipo_sangre).trim() !== ""
+        ? parseInt(id_tipo_sangre, 10)
+        : null;
+
+    const idCentroInt =
+      id_centro && String(id_centro).trim() !== ""
+        ? parseInt(id_centro, 10)
+        : null;
+
+    const sexoBit =
+      sexo === null || sexo === undefined || String(sexo).trim() === ""
+        ? null
+        : Number(sexo); // 0 / 1
+
+    let fechaNacDate = null;
+    if (fecha_nacimiento && String(fecha_nacimiento).trim() !== "") {
+      // 'YYYY-MM-DD' la dejamos tal cual, mssql la acepta
+      fechaNacDate = fecha_nacimiento;
+    }
+
+    const request = pool.request();
+
+    request
+      .input("id_usuario", sql.Int, id_usuario)
+      .input("ci_paciente", sql.Int, ciPacInt)
+      .input("nombre_completo", sql.VarChar(120), nombre_completo || null)
+      .input("correo", sql.VarChar(100), correo || null)
+      .input("celular", sql.VarChar(20), celular || null)
+      .input("direccion", sql.VarChar(200), direccion || null)
+      .input("sexo", sql.Bit, sexoBit)
+      .input("id_tipo_sangre", sql.Int, tipoSangreInt)
+      .input("id_centro", sql.Int, idCentroInt)
+      .input("fecha_nacimiento", sql.Date, fechaNacDate);
+
+    await request.query(`
+      DECLARE @ci_final INT;
+
+      -- si viene CI, usamos ese; sino generamos uno nuevo
+      IF @ci_paciente IS NOT NULL
+      BEGIN
+          SET @ci_final = @ci_paciente;
+      END
+      ELSE
+      BEGIN
+          SELECT @ci_final = ISNULL(MAX(ci_paciente), 0) + 1
+          FROM Paciente;
+      END
+
+      -- si existe paciente -> UPDATE, si no -> INSERT
+      IF EXISTS (SELECT 1 FROM Paciente WHERE ci_paciente = @ci_final)
+      BEGIN
+          UPDATE Paciente
+          SET nombre_completo  = @nombre_completo,
+              correo           = @correo,
+              celular          = @celular,
+              direccion        = @direccion,
+              sexo             = @sexo,
+              id_tipo_sangre   = @id_tipo_sangre,
+              id_centro        = @id_centro,
+              fecha_nacimiento = @fecha_nacimiento
+          WHERE ci_paciente = @ci_final;
+      END
+      ELSE
+      BEGIN
+          INSERT INTO Paciente (
+              ci_paciente,
+              id_tipo_sangre,
+              id_centro,
+              correo,
+              nombre_completo,
+              celular,
+              direccion,
+              sexo,
+              foto_perfil,
+              fecha_nacimiento
+          )
+          VALUES (
+              @ci_final,
+              @id_tipo_sangre,
+              @id_centro,
+              @correo,
+              @nombre_completo,
+              @celular,
+              @direccion,
+              @sexo,
+              NULL,
+              @fecha_nacimiento
+          );
+      END
+
+      -- enlazar Usuario → Paciente
+      UPDATE Usuario
+      SET ci_paciente = @ci_final
+      WHERE id_usuario = @id_usuario;
+    `);
 
     return res.json({ mensaje: "Datos de paciente guardados correctamente." });
   } catch (err) {
@@ -283,6 +307,51 @@ router.put("/pacientes/por-usuario/:id_usuario", async (req, res) => {
   }
 });
 
-// ======================================================================
+// ===================================================
+// PUT /pacientes/password  → Cambiar contraseña
+// ===================================================
+router.put("/pacientes/password", async (req, res) => {
+  try {
+    const { nombre_usuario, actual, nueva } = req.body;
+
+    if (!nombre_usuario || !actual || !nueva) {
+      return res.status(400).json({ mensaje: "Faltan datos." });
+    }
+
+    const pool = await poolPromise;
+    const hashActual = hashPassword(actual);
+
+    const user = await pool
+      .request()
+      .input("u", sql.VarChar(50), nombre_usuario)
+      .input("h", sql.VarBinary, hashActual)
+      .query(`
+        SELECT id_usuario
+        FROM Usuario
+        WHERE nombre_usuario = @u AND contrasena_hash = @h
+      `);
+
+    if (user.recordset.length === 0) {
+      return res.status(401).json({ mensaje: "Contraseña actual incorrecta." });
+    }
+
+    const hashNueva = hashPassword(nueva);
+
+    await pool
+      .request()
+      .input("u", sql.VarChar(50), nombre_usuario)
+      .input("h", sql.VarBinary, hashNueva)
+      .query(`
+        UPDATE Usuario
+        SET contrasena_hash = @h
+        WHERE nombre_usuario = @u
+      `);
+
+    return res.json({ mensaje: "Contraseña actualizada correctamente." });
+  } catch (err) {
+    console.error("Error en PUT /pacientes/password:", err);
+    return res.status(500).json({ mensaje: "Error en el servidor." });
+  }
+});
 
 module.exports = router;

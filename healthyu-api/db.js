@@ -1,25 +1,27 @@
-// db.js - Conexión a SQL Server (HealthyU)
-
 const sql = require("mssql");
 
-const dbConfig = {
-    user: "sa",
-    password: "Passw0rd!",
-    server: "159.203.102.189",   
-    database: "HealthyU",
-    port: 1433,
-    options: {
-        trustServerCertificate: true,
-        encrypt: false
-    }
+const config = {
+  user: "sa",
+  password: "Passw0rd!",
+  server: "159.203.102.189",
+  database: "HealthyU",
+  options: {
+    encrypt: false,
+    trustServerCertificate: true,
+  },
 };
 
-// Creamos el pool
-const pool = new sql.ConnectionPool(dbConfig);
-const poolConnect = pool.connect();
+const poolPromise = new sql.ConnectionPool(config)
+  .connect()
+  .then((pool) => {
+    console.log("Conectado a SQL Server HealthyU");
+    return pool;
+  })
+  .catch((err) => {
+    console.error("Error al conectar a SQL:", err);
+  });
 
 module.exports = {
-    sql,
-    pool,
-    poolConnect
+  sql,
+  poolPromise,
 };
