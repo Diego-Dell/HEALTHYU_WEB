@@ -717,3 +717,8 @@ document.addEventListener("DOMContentLoaded", () => {
   iniciarBlog();
   iniciarPerfil();
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  actualizarNavAuth();
+  iniciarCuentaPaciente();  
+});
