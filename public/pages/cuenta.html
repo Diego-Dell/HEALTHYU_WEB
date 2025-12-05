@@ -103,22 +103,22 @@
   </style>
 </head>
 <body>
-  <!-- NAVBAR (mismo en todas las páginas) -->
   <nav
     class="navbar navbar-expand-lg navbar-light barra-navegacion"
     style="background-color: var(--bg-card); border-bottom: 1px solid var(--border-soft);"
   >
     <div class="container">
-      <!-- Logo -->
+
+      <!-- Solo logo -->
       <a class="navbar-brand" href="index.html">
         <img
-          src="../IMAGENES/logo_horizontal.png"
+          src="../../IMAGENES/pagina/logo_horizontal.png"
           alt="Healthy U"
           style="max-height: 40px"
         />
       </a>
 
-      <!-- Botón hamburguesa -->
+      <!-- Botón hamburguesa móvil -->
       <button
         class="navbar-toggler"
         type="button"
@@ -131,8 +131,9 @@
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <!-- Contenido -->
+      <!-- Contenido del menú -->
       <div class="collapse navbar-collapse" id="navbarHealthyU">
+
         <!-- Menú principal -->
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0 menu-principal">
           <li class="nav-item">
@@ -148,12 +149,6 @@
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="comprar.html" style="color: var(--text-main);">
-              <i class="bi bi-cash-coin me-1"></i>Precios
-            </a>
-          </li>
-
-          <li class="nav-item">
             <a class="nav-link" href="blog.html" style="color: var(--text-main);">
               <i class="bi bi-journal-text me-1"></i>Blog
             </a>
@@ -164,14 +159,21 @@
               <i class="bi bi-envelope me-1"></i>Contacto
             </a>
           </li>
+
+          <!--  NUEVO: PRECIOS -->
+          <li class="nav-item">
+            <a class="nav-link" href="comprar.html" style="color: var(--text-main);">
+              <i class="bi bi-tags me-1"></i>Precios
+            </a>
+          </li>
         </ul>
 
-        <!-- Lado derecho -->
+        <!-- Lado derecho: Pedido + Acceder + Tema -->
         <div
           class="d-flex align-items-center ms-lg-4 mt-3 mt-lg-0 gap-2 border-start ps-lg-4 pt-2 pt-lg-0 zona-derecha-nav"
           style="border-color: var(--border-soft) !important;"
         >
-          <!-- Botón Pedido -->
+          <!-- Botón Pedido (oscuro) -->
           <a href="pedido.html" class="btn btn-dark btn-sm boton-pedido">
             <i class="bi bi-cart3 me-1"></i>
             Pedido
@@ -184,7 +186,7 @@
             </span>
           </a>
 
-          <!-- Este botón se reemplaza por JS si el usuario está logueado -->
+          <!-- Botón Login / Registro (JS lo convierte en "Mi Cuenta" si está logueado) -->
           <button
             id="btnLoginNav"
             type="button"
@@ -194,16 +196,6 @@
           >
             <i class="bi bi-box-arrow-in-right me-1"></i>
             Acceder
-          </button>
-
-          <!-- Cambio de tema -->
-          <button
-            id="themeToggle"
-            type="button"
-            class="btn btn-outline-secondary btn-sm boton-tema"
-            title="Cambiar tema"
-          >
-            <i class="bi bi-moon-stars"></i>
           </button>
         </div>
       </div>

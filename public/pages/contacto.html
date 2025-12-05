@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-  <!-- ================ BARRA DE NAVEGACIÓN (MISMA QUE INDEX) ================ -->
+
   <nav
     class="navbar navbar-expand-lg navbar-light barra-navegacion"
     style="background-color: var(--bg-card); border-bottom: 1px solid var(--border-soft);"
@@ -29,13 +29,13 @@
       <!-- Solo logo -->
       <a class="navbar-brand" href="index.html">
         <img
-          src="../IMAGENES/logo_horizontal.png"
+          src="../../IMAGENES/pagina/logo_horizontal.png"
           alt="Healthy U"
           style="max-height: 40px"
         />
       </a>
 
-      <!-- Botón hamburguesa para móvil -->
+      <!-- Botón hamburguesa móvil -->
       <button
         class="navbar-toggler"
         type="button"
@@ -72,12 +72,12 @@
           </li>
 
           <li class="nav-item">
-            <a class="nav-link active" href="contacto.html" style="color: var(--text-main);">
+            <a class="nav-link" href="contacto.html" style="color: var(--text-main);">
               <i class="bi bi-envelope me-1"></i>Contacto
             </a>
           </li>
 
-          <!-- ⭐ PRECIOS -->
+          <!--  NUEVO: PRECIOS -->
           <li class="nav-item">
             <a class="nav-link" href="comprar.html" style="color: var(--text-main);">
               <i class="bi bi-tags me-1"></i>Precios
@@ -90,7 +90,7 @@
           class="d-flex align-items-center ms-lg-4 mt-3 mt-lg-0 gap-2 border-start ps-lg-4 pt-2 pt-lg-0 zona-derecha-nav"
           style="border-color: var(--border-soft) !important;"
         >
-          <!-- Botón Pedido (carrito) -->
+          <!-- Botón Pedido (oscuro) -->
           <a href="pedido.html" class="btn btn-dark btn-sm boton-pedido">
             <i class="bi bi-cart3 me-1"></i>
             Pedido
@@ -103,7 +103,7 @@
             </span>
           </a>
 
-          <!-- Botón Acceder (se convierte en Mi Cuenta con JS si hay usuario) -->
+          <!-- Botón Login / Registro (JS lo convierte en "Mi Cuenta" si está logueado) -->
           <button
             id="btnLoginNav"
             type="button"
@@ -113,16 +113,6 @@
           >
             <i class="bi bi-box-arrow-in-right me-1"></i>
             Acceder
-          </button>
-
-          <!-- Botón cambio de tema -->
-          <button
-            id="themeToggle"
-            type="button"
-            class="btn btn-outline-secondary btn-sm boton-tema"
-            title="Cambiar tema"
-          >
-            <i class="bi bi-moon-stars"></i>
           </button>
         </div>
       </div>
@@ -134,11 +124,6 @@
     <div class="container">
       <h1 class="section-title text-center mb-4">Contacto</h1>
       <div class="row g-4">
-
-
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfSta6JOOTNkFyrYj_W-mzqMu95V-qrsNoDpP13gpt_MlXeBg/viewform?embedded=true" width="640" height="3039" frameborder="0" marginheight="0" marginwidth="0">Cargando…</iframe>
-
-
 
 
         <!-- Formulario de contacto -->
@@ -186,7 +171,7 @@
               <strong>Correo:</strong> contacto@healthyu.com
             </p>
             <p class="mb-1">
-              <strong>Teléfono:</strong> +591 70000000
+              <strong>Teléfono:</strong> +591 XXXXXX
             </p>
             <p class="mb-0">
               <strong>Ubicación:</strong> Santa Cruz de la Sierra, Bolivia

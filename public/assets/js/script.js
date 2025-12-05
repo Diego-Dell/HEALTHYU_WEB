@@ -86,11 +86,15 @@ function iniciarTema() {
 function actualizarNavAuth() {
   const usuario = obtenerUsuario();
   const btnLogin = document.getElementById("btnLoginNav");
+  const navMenu  = document.querySelector(".menu-principal"); // UL del menú
 
   if (!btnLogin) return;
 
+  // Buscar (si existe) el item de menú "Estadísticas"
+  let itemEstadisticas = document.getElementById("navEstadisticas");
+
   if (usuario) {
-    // Mostrar "Mi cuenta"
+    // ========== BOTÓN MI CUENTA ==========
     btnLogin.innerHTML = '<i class="bi bi-person-badge me-1"></i> Mi cuenta';
     btnLogin.classList.remove("btn-hu-accent");
     btnLogin.classList.add("btn-outline-primary");
@@ -98,11 +102,27 @@ function actualizarNavAuth() {
     btnLogin.removeAttribute("data-bs-toggle");
     btnLogin.removeAttribute("data-bs-target");
 
+    // El botón sigue yendo a cuenta.html (tu página de perfil)
     btnLogin.onclick = () => {
       window.location.href = "cuenta.html";
     };
+
+    // ========== ITEM "ESTADÍSTICAS" EN EL MENÚ ==========
+    if (navMenu && !itemEstadisticas) {
+      itemEstadisticas = document.createElement("li");
+      itemEstadisticas.className = "nav-item";
+      itemEstadisticas.id = "navEstadisticas";
+
+      itemEstadisticas.innerHTML = `
+        <a class="nav-link" href="grafico.html" style="color: var(--text-main);">
+          <i class="bi bi-graph-up-arrow me-1"></i>Estadísticas
+        </a>
+      `;
+
+      navMenu.appendChild(itemEstadisticas);
+    }
   } else {
-    // Mostrar "Acceder" (abre modal)
+    // ========== SIN SESIÓN ==========
     btnLogin.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i> Acceder';
     btnLogin.classList.add("btn-hu-accent");
     btnLogin.classList.remove("btn-outline-primary");
@@ -110,8 +130,16 @@ function actualizarNavAuth() {
     btnLogin.setAttribute("data-bs-toggle", "modal");
     btnLogin.setAttribute("data-bs-target", "#authModal");
     btnLogin.onclick = null;
+
+    // Eliminar item "Estadísticas" si existía
+    if (itemEstadisticas) {
+      itemEstadisticas.remove();
+    }
   }
 }
+
+
+
 
 
 // ================== LOGIN / REGISTRO contra API ==================
@@ -169,7 +197,7 @@ async function login(nombreUsuarioForzado = null, passForzado = null, silencioso
     }
 
     if (!silencioso) {
-      window.location.href = "cuenta.html";
+  window.location.href = "cuenta.html";
     }
 
     return true;
@@ -716,4 +744,9 @@ document.addEventListener("DOMContentLoaded", () => {
   iniciarPedido();
   iniciarBlog();
   iniciarPerfil();
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  actualizarNavAuth();
+  iniciarCuentaPaciente();  
 });

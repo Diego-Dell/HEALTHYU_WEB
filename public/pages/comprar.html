@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Healthy U - Comprar</title>
+  <title>Healthy U - Planes y precios</title>
 
   <!-- Bootstrap -->
   <link
@@ -20,17 +20,17 @@
 </head>
 <body>
 
-  <!-- ================= NAVBAR PRINCIPAL (MISMO QUE INDEX) ================= -->
+  <!-- ================= NAVBAR PRINCIPAL (MISMO QUE INDEX - NO TOCAR) ================= -->
   <nav
     class="navbar navbar-expand-lg navbar-light barra-navegacion"
     style="background-color: var(--bg-card); border-bottom: 1px solid var(--border-soft);"
   >
     <div class="container">
 
-      <!-- Logo -->
+      <!-- Solo logo -->
       <a class="navbar-brand" href="index.html">
         <img
-          src="../IMAGENES/logo_horizontal.png"
+          src="../../IMAGENES/pagina/logo_horizontal.png"
           alt="Healthy U"
           style="max-height: 40px"
         />
@@ -78,9 +78,9 @@
             </a>
           </li>
 
-          <!-- ⭐ PRECIOS ACTIVO -->
+          <!--  NUEVO: PRECIOS -->
           <li class="nav-item">
-            <a class="nav-link active" href="comprar.html" style="color: var(--text-main);">
+            <a class="nav-link" href="comprar.html" style="color: var(--text-main);">
               <i class="bi bi-tags me-1"></i>Precios
             </a>
           </li>
@@ -91,7 +91,7 @@
           class="d-flex align-items-center ms-lg-4 mt-3 mt-lg-0 gap-2 border-start ps-lg-4 pt-2 pt-lg-0 zona-derecha-nav"
           style="border-color: var(--border-soft) !important;"
         >
-          <!-- Botón Pedido -->
+          <!-- Botón Pedido (oscuro) -->
           <a href="pedido.html" class="btn btn-dark btn-sm boton-pedido">
             <i class="bi bi-cart3 me-1"></i>
             Pedido
@@ -104,7 +104,7 @@
             </span>
           </a>
 
-          <!-- Botón Login / Mi cuenta (lo controla script.js) -->
+          <!-- Botón Login / Registro (JS lo convierte en "Mi Cuenta" si está logueado) -->
           <button
             id="btnLoginNav"
             type="button"
@@ -115,16 +115,6 @@
             <i class="bi bi-box-arrow-in-right me-1"></i>
             Acceder
           </button>
-
-          <!-- Botón cambio de tema -->
-          <button
-            id="themeToggle"
-            type="button"
-            class="btn btn-outline-secondary btn-sm boton-tema"
-            title="Cambiar tema"
-          >
-            <i class="bi bi-moon-stars"></i>
-          </button>
         </div>
       </div>
     </div>
@@ -132,11 +122,46 @@
 
   <!-- ================= HEADER ================= -->
   <header class="py-5 bg-hu-soft border-bottom">
-    <div class="container text-center">
-      <h1 class="section-title mb-2">Planes y precios</h1>
-      <p class="text-muted mb-0">
-        Elige el plan adecuado para tu centro de salud.
-      </p>
+    <div class="container">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+          <span class="badge rounded-pill bg-light text-dark mb-3 px-3 py-2 shadow-sm">
+            <i class="bi bi-heart-pulse me-1"></i>
+            Pensado para pacientes con enfermedades crónicas
+          </span>
+
+          <h1 class="section-title mb-2">
+            Planes y precios
+          </h1>
+
+          <p class="text-muted mb-3">
+            Diseñado para profesionales que necesitan llevar un
+            <strong>seguimiento constante</strong> de sus pacientes crónicos
+            desde la app de escritorio Healthy U.
+          </p>
+
+          <p class="small text-muted mb-0">
+            Empieza con una <strong>prueba gratuita de 30 días</strong> y luego
+            da el salto al plan que mejor se ajuste a la cantidad de pacientes
+            que atiendes a diario.
+          </p>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="hu-card p-4 shadow-sm h-100">
+            <h5 class="fw-bold mb-3">
+              <i class="bi bi-activity me-1 text-primary"></i>
+              Pensado para el día a día con pacientes crónicos
+            </h5>
+            <ul class="list-unstyled small text-muted mb-0">
+              <li class="mb-2">✔ Monitoreo de signos vitales y controles periódicos</li>
+              <li class="mb-2">✔ Historial clínico completo siempre a mano</li>
+              <li class="mb-2">✔ Recordatorios para consultas, análisis y medicación</li>
+              <li class="mb-0">✔ Ideal para diabetes, hipertensión y otras patologías crónicas</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -145,97 +170,133 @@
     <div class="container">
       <div class="row g-4">
 
-        <!-- ======= CARD 1 ======= -->
+        <!-- ======= PLAN FREE 30 DÍAS ======= -->
         <div class="col-md-4">
-          <div class="hu-card p-4 h-100">
-            <h3 class="fw-bold mb-1">Plan Básico</h3>
-            <p class="text-muted mb-3">Ideal para consultorios pequeños.</p>
+          <div class="hu-card p-4 h-100 position-relative">
+            <span class="badge bg-secondary position-absolute top-0 start-0 m-3">
+              Prueba 30 días
+            </span>
 
-            <h2 class="fw-bold text-primary">
-              Bs 49<span class="fs-6 text-muted">/mes</span>
+            <h3 class="fw-bold mb-1 mt-4">Plan Free Trial</h3>
+            <p class="text-muted mb-3">
+              Para probar Healthy U con un grupo pequeño de pacientes crónicos.
+            </p>
+
+            <h2 class="fw-bold text-primary mb-1">
+              Bs 0<span class="fs-6 text-muted"> / 30 días</span>
             </h2>
+            <p class="small text-muted mb-3">
+              Acceso completo durante un mes, sin compromiso.
+            </p>
 
-            <ul class="mt-3 mb-4 text-muted">
-              <li>✔ Registro de pacientes</li>
-              <li>✔ Signos vitales ilimitados</li>
-              <li>✔ Historial básico</li>
+            <ul class="mt-2 mb-4 text-muted small">
+              <li>✔ Hasta 10 pacientes activos</li>
+              <li>✔ Fichas completas de cada paciente</li>
+              <li>✔ Registro de signos vitales desde la app de escritorio</li>
+              <li>✔ Recordatorios básicos de controles y medicación</li>
             </ul>
 
             <button
-              class="btn btn-hu-accent w-100 btn-add-cart"
-              data-name="Plan Básico"
-              data-price="49"
+              class="btn btn-outline-primary w-100 btn-add-cart"
+              data-name="Plan Free Trial 30 días"
+              data-price="0"
             >
-              <i class="bi bi-cart-plus me-1"></i>Agregar al carrito
-            </button>
-
-            <div id="mensaje" class="mt-3"></div>
-          </div>
-        </div>
-
-        <!-- ======= CARD 2 ======= -->
-        <div class="col-md-4">
-          <div class="hu-card p-4 h-100">
-            <h3 class="fw-bold mb-1">Plan Profesional</h3>
-            <p class="text-muted mb-3">Clínicas privadas y centros medianos.</p>
-
-            <h2 class="fw-bold text-primary">
-              Bs 89<span class="fs-6 text-muted">/mes</span>
-            </h2>
-
-            <ul class="mt-3 mb-4 text-muted">
-              <li>✔ Todo del plan básico</li>
-              <li>✔ Recordatorios inteligentes</li>
-              <li>✔ Historial avanzado</li>
-              <li>✔ Multiusuario</li>
-            </ul>
-
-            <button
-              class="btn btn-hu-accent w-100 btn-add-cart"
-              data-name="Plan Profesional"
-              data-price="89"
-            >
-              <i class="bi bi-cart-plus me-1"></i>Agregar al carrito
+              <i class="bi bi-rocket-takeoff me-1"></i>Probar 30 días gratis
             </button>
           </div>
         </div>
 
-        <!-- ======= CARD 3 ======= -->
+        <!-- ======= PLAN SEGUIMIENTO PRO (99 Bs) ======= -->
         <div class="col-md-4">
-          <div class="hu-card p-4 h-100">
-            <h3 class="fw-bold mb-1">Plan Hospitalario</h3>
-            <p class="text-muted mb-3">Hospitales y grandes instituciones.</p>
+          <div class="hu-card p-4 h-100 position-relative border border-2"
+               style="border-color: var(--hu-acento) !important;">
+            <span class="badge bg-success position-absolute top-0 start-50 translate-middle-x mt-3">
+              Recomendado
+            </span>
 
-            <h2 class="fw-bold text-primary">
-              Bs 199<span class="fs-6 text-muted">/mes</span>
-            </h2>
+            <h3 class="fw-bold mb-1 mt-4 text-center">Plan Seguimiento Pro</h3>
+            <p class="text-muted mb-3 text-center">
+              Para profesionales que siguen pacientes crónicos todos los días.
+            </p>
 
-            <ul class="mt-3 mb-4 text-muted">
-              <li>✔ Todo del profesional</li>
-              <li>✔ Panel estadístico</li>
-              <li>✔ Soporte 24/7</li>
-              <li>✔ +100 usuarios</li>
+            <div class="text-center mb-3">
+              <h2 class="fw-bold mb-0" style="color: var(--hu-acento);">
+                Bs 99<span class="fs-6 text-muted"> / mes</span>
+              </h2>
+              <p class="small text-muted mb-0">
+                Ideal si trabajas con varios pacientes en control permanente.
+              </p>
+            </div>
+
+            <ul class="mt-2 mb-4 text-muted small">
+              <li>✔ Pacientes activos ilimitados</li>
+              <li>✔ Protocolos de seguimiento para enfermedades crónicas</li>
+              <li>✔ Alertas inteligentes ante cambios en signos vitales</li>
+              <li>✔ Evolución gráfica y reportes básicos de cada paciente</li>
+              <li>✔ Uso en múltiples equipos con tu cuenta Healthy U</li>
             </ul>
 
             <button
-              class="btn btn-hu-accent w-100 btn-add-cart"
-              data-name="Plan Hospitalario"
+              class="btn btn-hu-acento w-100 btn-add-cart"
+              data-name="Plan Seguimiento Pro"
+              data-price="99"
+            >
+              <i class="bi bi-cart-plus me-1"></i>Elegir Plan Seguimiento Pro
+            </button>
+          </div>
+        </div>
+
+        <!-- ======= PLAN EQUIPO DE SALUD (199 Bs) ======= -->
+        <div class="col-md-4">
+          <div class="hu-card p-4 h-100 position-relative">
+            <span class="badge bg-dark text-light position-absolute top-0 start-0 m-3">
+              Para equipos
+            </span>
+
+            <h3 class="fw-bold mb-1 mt-4">Plan Equipo de Salud</h3>
+            <p class="text-muted mb-3">
+              Para centros que comparten el seguimiento de muchos pacientes crónicos.
+            </p>
+
+            <h2 class="fw-bold text-primary mb-1">
+              Bs 199<span class="fs-6 text-muted"> / mes</span>
+            </h2>
+            <p class="small text-muted mb-3">
+              Incluye a todo tu equipo y herramientas avanzadas de coordinación.
+            </p>
+
+            <ul class="mt-2 mb-4 text-muted small">
+              <li>✔ Todo lo del Plan Seguimiento Pro</li>
+              <li>✔ Múltiples usuarios con roles (médico, enfermería, adm.)</li>
+              <li>✔ Panel de pacientes crónicos en riesgo</li>
+              <li>✔ Reportes agregados por patología y por profesional</li>
+              <li>✔ Acompañamiento en la configuración inicial</li>
+            </ul>
+
+            <button
+              class="btn btn-outline-dark w-100 btn-add-cart"
+              data-name="Plan Equipo de Salud"
               data-price="199"
             >
-              <i class="bi bi-cart-plus me-1"></i>Agregar al carrito
+              <i class="bi bi-people-fill me-1"></i>Quiero este plan
             </button>
           </div>
         </div>
 
       </div>
+
+      <!-- ======= MENSAJE GLOBAL ======= -->
+      <div id="mensaje" class="mt-4 text-center"></div>
+
     </div>
   </main>
+
 
   <!-- ================= FOOTER ================= -->
   <footer class="footer py-3 pie-pagina">
     <div class="container text-center">
       <small class="text-muted">
-        © 2025 Healthy U · The Big Bang Coders
+        © 2025 Healthy U · The Big Bang Coders · Hecho para centros de salud que cuidan mejor.
       </small>
     </div>
   </footer>
